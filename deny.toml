@@ -28,6 +28,8 @@ allow = [
     "Zlib",
     "MPL-2.0",
     "CC0-1.0",
+    # webpki-roots (transitive via reqwest's rustls backend) is permissive data.
+    "CDLA-Permissive-2.0",
 ]
 
 [bans]

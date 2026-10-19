@@ -95,30 +95,49 @@ Before any crate is added to `Cargo.toml`:
 5. **Enforce in CI:** `cargo-deny` (licenses, bans, advisories, sources) and
    `cargo-audit`; fail the build on new copyleft or vulnerable deps.
 
-### Candidate crates (all **unverified**, pending gate)
+### Adopted crates (verified)
 
-| Crate | Purpose | Expected license | Status |
-|---|---|---|---|
-| tokio | async runtime | MIT | candidate |
-| reqwest | HTTP client | MIT/Apache-2.0 | candidate |
-| rustls / webpki-roots | TLS | ISC/MIT/Apache-2.0 | candidate |
-| scraper / html5ever | HTML parsing | MIT/Apache-2.0 | candidate |
-| lol_html | streaming HTML rewrite | BSD-3-Clause | candidate |
-| htmd | HTML→Markdown | verify | candidate |
-| serde / serde_json | serialization | MIT/Apache-2.0 | candidate |
-| schemars | JSON Schema gen | MIT | candidate |
-| jsonschema | runtime validation | MIT | candidate |
-| thiserror | error enums | MIT/Apache-2.0 | candidate |
-| async-trait | async traits | MIT/Apache-2.0 | candidate (avoid if native suffices) |
-| tracing / tracing-subscriber | observability | MIT | candidate |
-| axum / tower / tower-http | API server | MIT | candidate |
-| rmcp | MCP SDK | verify | candidate (maturity gate) |
-| clap | CLI | MIT/Apache-2.0 | candidate |
-| url | URL handling | MIT/Apache-2.0 | candidate |
-| ipnet | CIDR policy | MIT/Apache-2.0 | candidate |
-| sha2 | content hashing | MIT/Apache-2.0 | candidate |
-| tiktoken-rs | token counting | MIT | candidate |
-| cargo-deny / cargo-audit / cargo-fuzz | tooling | MIT/Apache-2.0 | candidate |
+Resolved versions and licenses were read from crates.io metadata for the exact
+locked versions; `cargo deny check` passes with the allowlist in
+[`../deny.toml`](../deny.toml).
+
+| Crate | Version | Purpose | Resolved license | Status |
+|---|---|---|---|---|
+| tokio | 1.54.0 | async runtime | MIT | adopted |
+| reqwest | 0.12.28 | HTTP client (rustls backend) | MIT OR Apache-2.0 | adopted |
+| webpki-roots | 1.0.10 | Mozilla root store | CDLA-Permissive-2.0 | adopted (transitive; permissive data license) |
+| scraper | 0.27.0 | HTML parsing | ISC | adopted |
+| ego-tree | 0.11.0 | DOM arena (scraper dependency) | ISC | adopted |
+| htmd | 0.5.6 | HTML→Markdown | Apache-2.0 | adopted |
+| url | 2.5.8 | URL handling | MIT OR Apache-2.0 | adopted |
+| http | 1.5.0 | header map | MIT OR Apache-2.0 | adopted |
+| thiserror | 2.0.21 | error enums | MIT OR Apache-2.0 | adopted |
+| serde | 1.0.229 | serialization | MIT OR Apache-2.0 | adopted |
+| serde_json | 1.0.154 | JSON (tests) | MIT OR Apache-2.0 | adopted |
+| tracing | 0.1.44 | observability | MIT | adopted |
+| futures-util | 0.3.34 | stream utilities | MIT OR Apache-2.0 | adopted |
+| flate2 | 1.1.10 | gzip fixture in tests | MIT OR Apache-2.0 | dev-only |
+
+**Note on CDLA-Permissive-2.0:** it is a permissive *data* license used by the
+bundled CA roots, not code under a copyleft term. It is allowlisted explicitly in
+`deny.toml`.
+
+### Still candidates (not yet adopted)
+
+| Crate | Purpose | Expected license |
+|---|---|---|
+| lol_html | streaming HTML rewrite | BSD-3-Clause |
+| schemars | JSON Schema generation | MIT |
+| jsonschema | runtime validation | MIT |
+| async-trait | async traits | MIT/Apache-2.0 (avoid if native suffices) |
+| tracing-subscriber | log formatting | MIT |
+| axum / tower / tower-http | API server | MIT |
+| rmcp | MCP SDK | verify (maturity gate) |
+| clap | CLI | MIT/Apache-2.0 |
+| ipnet | CIDR policy | MIT/Apache-2.0 |
+| sha2 | content hashing | MIT/Apache-2.0 |
+| tiktoken-rs | token counting | MIT |
+| cargo-deny / cargo-audit / cargo-fuzz | tooling | MIT/Apache-2.0 |
 
 No candidate is adopted until it is verified and recorded here.
 
@@ -135,5 +154,7 @@ No candidate is adopted until it is verified and recorded here.
 
 - Machine-verify every upstream dependency license (e.g. `pip-licenses` / SBOM)
   if any conceptual reuse is ever in question.
-- Verify each adopted Rust crate's resolved license and record it.
-- Add `deny.toml` with an explicit allowlist and run it in CI from M0.
+- ~~Verify each adopted Rust crate's resolved license and record it.~~ Done for
+  M0–M1 crates (§4); repeat for each new adoption.
+- ~~Add `deny.toml` with an explicit allowlist and run it in CI from M0.~~ Done:
+  `deny.toml` is committed and enforced by CI (`cargo deny check` passes).

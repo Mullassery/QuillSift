@@ -1,8 +1,9 @@
 # ScrapeOwl — Rust Architecture (proposed)
 
-Status: **proposal for review (end of Phase 0)**. No crate is implemented yet.
-This document states intended boundaries, dependencies and acceptance criteria.
-Dependency names are *candidates*; adoption is gated on the checks in
+Status: **living document**. M0 (`scrape-core`) and M1 (`scrape-fetch`,
+`scrape-html`) are implemented; later milestones are still proposals. This
+document states intended boundaries, dependencies and acceptance criteria.
+Dependency names are *candidates* until recorded as adopted in
 [DEPENDENCY_AND_LICENSE_AUDIT.md](./DEPENDENCY_AND_LICENSE_AUDIT.md).
 
 ## 1. Principles
@@ -197,13 +198,19 @@ reported before the next milestone.
 - Result (2026-10-20): 14 unit tests pass; clippy clean; `cargo deny check` ok;
   `cargo audit` exit 0. License set to Apache-2.0.
 
-### M1 — Deterministic fetch + parse (Phase 2)
+### M1 — Deterministic fetch + parse (Phase 2) — **done (core), fuzz pending**
 - Scope: `scrape-fetch` (reqwest + SSRF + limits), `scrape-html` (parse,
   metadata, links, images, markdown, canonicalization), local inputs, typed
   errors, `tracing`.
 - Acceptance: fixture-server integration tests (success, timeout, redirect,
   oversized, gzip, malformed); SSRF tests (loopback/private/metadata/IPv4-mapped
   IPv6/redirect-chain/rebind); no panics on malformed input; fuzz smoke.
+- Result (2026-10-20): 55 tests pass across the workspace (23 core, 6 fetch
+  unit, 11 fixture-server integration, 15 html). Implemented: manual per-hop
+  redirect validation, connection-time guarded DNS resolver (rebind defence),
+  literal-IP checks, compressed-size cap, timeouts, and malformed-HTML tests.
+  Fuzz targets are **not yet wired** (`cargo-fuzz` is an M1 follow-up, not a
+  blocker for M2).
 
 ### M2 — Typed graph engine (Phase 4 subset)
 - Scope: `scrape-graph` DAG, scheduler, cancellation/deadlines, retry policy,

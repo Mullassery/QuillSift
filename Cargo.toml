@@ -1,6 +1,10 @@
 [workspace]
 resolver = "2"
-members = ["crates/scrape-core"]
+members = [
+    "crates/scrape-core",
+    "crates/scrape-html",
+    "crates/scrape-fetch",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -10,11 +14,19 @@ repository = "https://github.com/Mullassery/ScrapeOwl"
 authors = ["ScrapeOwl contributors"]
 
 [workspace.dependencies]
+scrape-core = { path = "crates/scrape-core", version = "0.1.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
 url = { version = "2", features = ["serde"] }
 http = "1"
+scraper = "0.27"
+ego-tree = "0.11"
+htmd = "0.5"
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "net", "time", "sync", "macros"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "stream", "gzip", "brotli", "deflate", "http2"] }
+futures-util = "0.3"
+tracing = "0.1"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

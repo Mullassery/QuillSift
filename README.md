@@ -1,10 +1,12 @@
 # ScrapeOwl
 
-> **Status: Phase 1 / M0 (workspace scaffold).** The audit and design documents
-> are complete and the Rust workspace with the `scrape-core` types exists, with
-> CI (fmt, clippy, test, `cargo-deny`, `cargo-audit`) passing. There is **no
-> scraping, network, LLM or browser functionality yet.** Nothing here is a claim
-> of feature parity or production readiness.
+> **Status: Phase 2 / M1 (deterministic fetch + parse).** The Rust workspace
+> contains `scrape-core` (types, errors, policies, SSRF address classes),
+> `scrape-html` (metadata, text, markdown, links, images) and `scrape-fetch`
+> (SSRF-guarded HTTP with redirect, size and timeout limits). CI (fmt, clippy,
+> test, `cargo-deny`, `cargo-audit`) passes. There is **no LLM, crawl, browser,
+> API, CLI or MCP functionality yet.** Nothing here is a claim of feature parity
+> or production readiness.
 
 ScrapeOwl is a planned **Rust-native, self-hosted AI scraping platform**:
 a typed, secure-by-default engine for deterministic HTML extraction and
@@ -55,8 +57,8 @@ cargo audit
 
 ## Roadmap (see RUST_ARCHITECTURE.md for acceptance criteria)
 
-M0 workspace · M1 deterministic fetch/parse · M2 typed graph engine ·
-M3 LLM extraction + CLI · M4 crawl/search · M5 optional browser ·
+M0 workspace (done) · M1 deterministic fetch/parse (done) · M2 typed graph
+engine · M3 LLM extraction + CLI · M4 crawl/search · M5 optional browser ·
 M6 API/MCP · M7 hardening/benchmarks · M8 docs/release.
 
 ## Open items
