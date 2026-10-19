@@ -1,0 +1,25 @@
+# Rust
+/target
+**/*.rs.bk
+
+# Cargo lock for libraries is committed; ignore stray build artifacts
+*.pdb
+
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+*.swp
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Python (PyO3 bindings later)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
