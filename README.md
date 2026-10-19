@@ -1,12 +1,13 @@
 # ScrapeOwl
 
-> **Status: Phase 2 / M1 (deterministic fetch + parse).** The Rust workspace
-> contains `scrape-core` (types, errors, policies, SSRF address classes),
-> `scrape-html` (metadata, text, markdown, links, images) and `scrape-fetch`
-> (SSRF-guarded HTTP with redirect, size and timeout limits). CI (fmt, clippy,
-> test, `cargo-deny`, `cargo-audit`) passes. There is **no LLM, crawl, browser,
-> API, CLI or MCP functionality yet.** Nothing here is a claim of feature parity
-> or production readiness.
+> **Status: Phase 4 / M2 (typed graph engine).** The Rust workspace contains
+> `scrape-core` (types, errors, policies, SSRF address classes), `scrape-html`
+> (metadata, text, markdown, links, images), `scrape-fetch` (SSRF-guarded HTTP
+> with redirect, size and timeout limits) and `scrape-graph` (bounded DAG
+> execution with deadlines, cancellation, retries and failure isolation). CI
+> (fmt, clippy, test, `cargo-deny`, `cargo-audit`) passes. There is **no LLM,
+> crawl, browser, API, CLI or MCP functionality yet.** Nothing here is a claim
+> of feature parity or production readiness.
 
 ScrapeOwl is a planned **Rust-native, self-hosted AI scraping platform**:
 a typed, secure-by-default engine for deterministic HTML extraction and
@@ -30,7 +31,10 @@ ScrapeGraphAI source code. See [NOTICE.md](./NOTICE.md).
 
 ```
 crates/
-└── scrape-core/                      # domain types, config policies, errors, traits
+├── scrape-core/                      # domain types, config policies, errors, SSRF classes
+├── scrape-fetch/                     # SSRF-guarded HTTP client (redirect/size/time limits)
+├── scrape-html/                      # metadata, text, markdown, links, images
+└── scrape-graph/                     # bounded DAG executor (deadline/cancel/retry)
 docs/
 ├── UPSTREAM_AUDIT.md                 # read-only audit of ScrapeGraphAI v2.3.1
 ├── FEATURE_PARITY_MATRIX.md          # per-feature goals, priorities, out-of-scope
@@ -41,9 +45,11 @@ NOTICE.md                             # upstream attribution (MIT)
 deny.toml                             # cargo-deny license/advisory policy
 ```
 
-`scrape-core` currently provides: `ScrapeError`/`ErrorKind` (with retry
-classification), `FetchPolicy`, `RetryPolicy`, `CrawlPolicy` (validated, secure
-defaults), and the `Document`/`Metadata`/`Extracted`/`Extractor` types.
+`scrape-core` provides `ScrapeError`/`ErrorKind` (with retry classification),
+`FetchPolicy`, `RetryPolicy`, `CrawlPolicy` (validated, secure defaults),
+`Document`/`Metadata`/`Extracted`/`Extractor`, and SSRF address classification.
+The other crates build on it: `scrape-fetch` (guarded HTTP), `scrape-html`
+(deterministic extraction) and `scrape-graph` (typed DAG execution).
 
 ## Development
 
@@ -58,7 +64,7 @@ cargo audit
 ## Roadmap (see RUST_ARCHITECTURE.md for acceptance criteria)
 
 M0 workspace (done) · M1 deterministic fetch/parse (done) · M2 typed graph
-engine · M3 LLM extraction + CLI · M4 crawl/search · M5 optional browser ·
+engine (done) · M3 LLM extraction + CLI · M4 crawl/search · M5 optional browser ·
 M6 API/MCP · M7 hardening/benchmarks · M8 docs/release.
 
 ## Open items

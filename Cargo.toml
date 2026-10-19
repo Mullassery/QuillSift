@@ -4,6 +4,7 @@ members = [
     "crates/scrape-core",
     "crates/scrape-html",
     "crates/scrape-fetch",
+    "crates/scrape-graph",
 ]
 
 [workspace.package]
@@ -15,6 +16,7 @@ authors = ["ScrapeOwl contributors"]
 
 [workspace.dependencies]
 scrape-core = { path = "crates/scrape-core", version = "0.1.0" }
+scrape-graph = { path = "crates/scrape-graph", version = "0.1.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"

@@ -116,6 +116,8 @@ locked versions; `cargo deny check` passes with the allowlist in
 | serde_json | 1.0.154 | JSON (tests) | MIT OR Apache-2.0 | adopted |
 | tracing | 0.1.44 | observability | MIT | adopted |
 | futures-util | 0.3.34 | stream utilities | MIT OR Apache-2.0 | adopted |
+| async-trait | 0.1.92 | async trait objects | MIT OR Apache-2.0 | adopted |
+| tokio-util | 0.7.20 | cancellation token | MIT | adopted |
 | flate2 | 1.1.10 | gzip fixture in tests | MIT OR Apache-2.0 | dev-only |
 
 **Note on CDLA-Permissive-2.0:** it is a permissive *data* license used by the

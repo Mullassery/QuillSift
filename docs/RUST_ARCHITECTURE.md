@@ -1,7 +1,8 @@
 # ScrapeOwl — Rust Architecture (proposed)
 
-Status: **living document**. M0 (`scrape-core`) and M1 (`scrape-fetch`,
-`scrape-html`) are implemented; later milestones are still proposals. This
+Status: **living document**. M0 (`scrape-core`), M1 (`scrape-fetch`,
+`scrape-html`) and M2 (`scrape-graph`) are implemented; later milestones are
+still proposals. This
 document states intended boundaries, dependencies and acceptance criteria.
 Dependency names are *candidates* until recorded as adopted in
 [DEPENDENCY_AND_LICENSE_AUDIT.md](./DEPENDENCY_AND_LICENSE_AUDIT.md).
@@ -212,11 +213,17 @@ reported before the next milestone.
   Fuzz targets are **not yet wired** (`cargo-fuzz` is an M1 follow-up, not a
   blocker for M2).
 
-### M2 — Typed graph engine (Phase 4 subset)
+### M2 — Typed graph engine (Phase 4 subset) — **done**
 - Scope: `scrape-graph` DAG, scheduler, cancellation/deadlines, retry policy,
   per-node tracing, mock nodes.
 - Acceptance: concurrency-limit, cancellation, deadline and retry tests with a
   deterministic scheduler test harness.
+- Result (2026-10-20): 71 workspace tests pass (23 core, 17 fetch, 15 html,
+  15 graph, 1 doc). Graph tests use paused time for deterministic deadline,
+  cancellation, retry and concurrency assertions. Implemented: Kahn cycle
+  detection, duplicate/unknown-edge validation, bounded `Semaphore` scheduling,
+  deadline + `CancellationToken`, fail-fast vs. continue failure isolation,
+  retry with bounded deterministic jitter, and per-node `tracing` spans.
 
 ### M3 — LLM extraction (Phase 3) + CLI (Phase 6 subset)
 - Scope: `scrape-llm` (OpenAI-compatible + Ollama adapters), `scrape-extract`
