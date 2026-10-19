@@ -189,11 +189,13 @@ Before adding any dependency:
 Each milestone is a separate PR-sized change. Tests must pass and results
 reported before the next milestone.
 
-### M0 — Workspace skeleton (Phase 1)
+### M0 — Workspace skeleton (Phase 1) — **done**
 - Scope: workspace + `scrape-core` types/errors/config; CI (fmt, clippy, test,
   deny, audit); README/ARCHITECTURE stubs.
 - Acceptance: `cargo test` green; `cargo clippy -- -D warnings` clean;
   `cargo deny check` clean.
+- Result (2026-10-20): 14 unit tests pass; clippy clean; `cargo deny check` ok;
+  `cargo audit` exit 0. License set to Apache-2.0.
 
 ### M1 — Deterministic fetch + parse (Phase 2)
 - Scope: `scrape-fetch` (reqwest + SSRF + limits), `scrape-html` (parse,
@@ -249,7 +251,7 @@ reported before the next milestone.
 ## 10. Open decisions to confirm before M0
 
 1. **Project name & trademark check** for "ScrapeOwl" (release blocker).
-2. **License** for ScrapeOwl (proposed MIT, matching upstream; confirm).
+2. ~~License~~ — **decided: Apache-2.0** (see `LICENSE`).
 3. **MSRV** and whether `async-trait` is needed or native async traits suffice.
 4. Exact **MCP SDK** choice (`rmcp` vs alternative) after maturity check.
 5. Whether `scrape-python` (PyO3) is in scope for the first year.

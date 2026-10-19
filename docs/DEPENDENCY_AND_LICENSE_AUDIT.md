@@ -124,12 +124,12 @@ No candidate is adopted until it is verified and recorded here.
 
 ## 5. ScrapeOwl license decision
 
-- **Proposed:** MIT (matches upstream's permissive stance and maximizes
-  ecosystem compatibility). **Requires explicit confirmation** before the first
-  release (see open decisions in [RUST_ARCHITECTURE.md](./RUST_ARCHITECTURE.md)).
-- A `NOTICE.md` will credit ScrapeGraphAI (MIT) for the concepts and public API
-  names it inspired, and state clearly that ScrapeOwl is independent and
-  unaffiliated.
+- **Decided: Apache-2.0.** Confirmed by the maintainer on 2026-10-20. Chosen for
+  its explicit patent grant; compatible with the permissive upstream MIT code we
+  do not copy. See [`../LICENSE`](../LICENSE).
+- [`../NOTICE.md`](../NOTICE.md) credits ScrapeGraphAI (MIT) for the concepts
+  and public API names it inspired, and states clearly that ScrapeOwl is
+  independent and unaffiliated.
 
 ## 6. Outstanding work
 
