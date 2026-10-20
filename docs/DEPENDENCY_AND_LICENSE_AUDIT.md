@@ -113,11 +113,16 @@ locked versions; `cargo deny check` passes with the allowlist in
 | http | 1.5.0 | header map | MIT OR Apache-2.0 | adopted |
 | thiserror | 2.0.21 | error enums | MIT OR Apache-2.0 | adopted |
 | serde | 1.0.229 | serialization | MIT OR Apache-2.0 | adopted |
-| serde_json | 1.0.154 | JSON (tests) | MIT OR Apache-2.0 | adopted |
+| serde_json | 1.0.154 | JSON values, schemas, tests | MIT OR Apache-2.0 | adopted |
 | tracing | 0.1.44 | observability | MIT | adopted |
 | futures-util | 0.3.34 | stream utilities | MIT OR Apache-2.0 | adopted |
 | async-trait | 0.1.92 | async trait objects | MIT OR Apache-2.0 | adopted |
 | tokio-util | 0.7.20 | cancellation token | MIT | adopted |
+| borrow-or-share | 0.2.4 | borrowed/owned string helpers (transitive via `jsonschema`) | MIT-0 | adopted (transitive) |
+| schemars | 1.2.3 | derive JSON Schema from Rust types | MIT | adopted |
+| jsonschema | 0.59.0 | runtime JSON Schema validation | MIT | adopted |
+| tracing-subscriber | 0.3.23 | log filtering/formatting (CLI) | MIT | adopted |
+| clap | 4.6.7 | CLI argument parsing | MIT OR Apache-2.0 | adopted |
 | flate2 | 1.1.10 | gzip fixture in tests | MIT OR Apache-2.0 | dev-only |
 
 **Note on CDLA-Permissive-2.0:** it is a permissive *data* license used by the
@@ -129,13 +134,8 @@ bundled CA roots, not code under a copyleft term. It is allowlisted explicitly i
 | Crate | Purpose | Expected license |
 |---|---|---|
 | lol_html | streaming HTML rewrite | BSD-3-Clause |
-| schemars | JSON Schema generation | MIT |
-| jsonschema | runtime validation | MIT |
-| async-trait | async traits | MIT/Apache-2.0 (avoid if native suffices) |
-| tracing-subscriber | log formatting | MIT |
 | axum / tower / tower-http | API server | MIT |
 | rmcp | MCP SDK | verify (maturity gate) |
-| clap | CLI | MIT/Apache-2.0 |
 | ipnet | CIDR policy | MIT/Apache-2.0 |
 | sha2 | content hashing | MIT/Apache-2.0 |
 | tiktoken-rs | token counting | MIT |

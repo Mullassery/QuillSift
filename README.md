@@ -1,13 +1,16 @@
 # ScrapeOwl
 
-> **Status: Phase 4 / M2 (typed graph engine).** The Rust workspace contains
+> **Status: Phase 4 / M3 (LLM extraction + CLI).** The Rust workspace contains
 > `scrape-core` (types, errors, policies, SSRF address classes), `scrape-html`
 > (metadata, text, markdown, links, images), `scrape-fetch` (SSRF-guarded HTTP
-> with redirect, size and timeout limits) and `scrape-graph` (bounded DAG
-> execution with deadlines, cancellation, retries and failure isolation). CI
-> (fmt, clippy, test, `cargo-deny`, `cargo-audit`) passes. There is **no LLM,
-> crawl, browser, API, CLI or MCP functionality yet.** Nothing here is a claim
-> of feature parity or production readiness.
+> with redirect, size and timeout limits), `scrape-graph` (bounded DAG
+> execution with deadlines, cancellation, retries and failure isolation),
+> `scrape-llm` (`OpenAI`-compatible + Ollama chat adapters),
+> `scrape-extract` (schema-validated extraction with bounded repair) and
+> `scrape-cli` (the `scrapeowl` binary). CI (fmt, clippy, test, `cargo-deny`,
+> `cargo-audit`) passes. There is **no crawl, browser, API or MCP
+> functionality yet.** Nothing here is a claim of feature parity or production
+> readiness.
 
 ScrapeOwl is a planned **Rust-native, self-hosted AI scraping platform**:
 a typed, secure-by-default engine for deterministic HTML extraction and
@@ -34,7 +37,10 @@ crates/
 ├── scrape-core/                      # domain types, config policies, errors, SSRF classes
 ├── scrape-fetch/                     # SSRF-guarded HTTP client (redirect/size/time limits)
 ├── scrape-html/                      # metadata, text, markdown, links, images
-└── scrape-graph/                     # bounded DAG executor (deadline/cancel/retry)
+├── scrape-graph/                     # bounded DAG executor (deadline/cancel/retry)
+├── scrape-llm/                       # OpenAI-compatible + Ollama chat adapters
+├── scrape-extract/                   # schema-validated extraction + bounded repair
+└── scrape-cli/                       # `scrapeowl` command-line binary
 docs/
 ├── UPSTREAM_AUDIT.md                 # read-only audit of ScrapeGraphAI v2.3.1
 ├── FEATURE_PARITY_MATRIX.md          # per-feature goals, priorities, out-of-scope
@@ -49,7 +55,29 @@ deny.toml                             # cargo-deny license/advisory policy
 `FetchPolicy`, `RetryPolicy`, `CrawlPolicy` (validated, secure defaults),
 `Document`/`Metadata`/`Extracted`/`Extractor`, and SSRF address classification.
 The other crates build on it: `scrape-fetch` (guarded HTTP), `scrape-html`
-(deterministic extraction) and `scrape-graph` (typed DAG execution).
+(deterministic extraction), `scrape-graph` (typed DAG execution), `scrape-llm`
+(provider adapters), `scrape-extract` (schema-validated LLM extraction) and
+`scrape-cli` (the `scrapeowl` binary).
+
+## CLI usage
+
+```bash
+# Deterministic path: no LLM, no credentials.
+cargo run -p scrape-cli -- fetch https://example.com --format markdown
+
+# Schema-validated extraction (API key comes from the environment, never argv).
+OPENAI_API_KEY=... cargo run -p scrape-cli -- extract https://example.com \
+  --schema schema.json --model gpt-4o-mini
+
+# Local Ollama: loopback needs an explicit opt-in.
+cargo run -p scrape-cli -- extract http://localhost:8080/ \
+  --provider ollama --base-url http://localhost:11434 \
+  --model llama3 --schema schema.json --allow-private
+```
+
+Extraction receives the deterministic visible text, not raw HTML, and output
+must parse as JSON and validate against the supplied schema. The system policy
+is fixed; document content is fenced and cannot change it.
 
 ## Development
 
@@ -64,8 +92,8 @@ cargo audit
 ## Roadmap (see RUST_ARCHITECTURE.md for acceptance criteria)
 
 M0 workspace (done) · M1 deterministic fetch/parse (done) · M2 typed graph
-engine (done) · M3 LLM extraction + CLI · M4 crawl/search · M5 optional browser ·
-M6 API/MCP · M7 hardening/benchmarks · M8 docs/release.
+engine (done) · M3 LLM extraction + CLI (done) · M4 crawl/search · M5 optional
+browser · M6 API/MCP · M7 hardening/benchmarks · M8 docs/release.
 
 ## Open items
 

@@ -50,7 +50,7 @@ pub struct Metadata {
 }
 
 /// The result of deterministically processing a document.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Extracted {
     /// The URL the content came from.
     pub url: Url,

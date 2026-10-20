@@ -247,3 +247,76 @@ async fn enforces_decompressed_size_limit() {
         "{err}"
     );
 }
+
+fn spawn_echo_server() -> SocketAddr {
+    let listener = TcpListener::bind("127.0.0.1:0").expect("bind echo server");
+    let addr = listener.local_addr().expect("echo address");
+    thread::spawn(move || {
+        for stream in listener.incoming() {
+            let Ok(mut stream) = stream else { continue };
+            let mut data = Vec::new();
+            let mut chunk = [0u8; 1024];
+            loop {
+                match stream.read(&mut chunk) {
+                    Ok(0) | Err(_) => break,
+                    Ok(n) => data.extend_from_slice(&chunk[..n]),
+                }
+                if data.windows(4).any(|window| window == b"\r\n\r\n") {
+                    break;
+                }
+            }
+            let header_end = data
+                .windows(4)
+                .position(|window| window == b"\r\n\r\n")
+                .map_or(data.len(), |index| index + 4);
+            let headers = String::from_utf8_lossy(&data[..header_end]).into_owned();
+            let length = headers
+                .lines()
+                .find_map(|line| {
+                    let (key, value) = line.split_once(':')?;
+                    key.eq_ignore_ascii_case("content-length")
+                        .then(|| value.trim().parse::<usize>().ok())
+                        .flatten()
+                })
+                .unwrap_or(0);
+            while data.len() < header_end + length {
+                match stream.read(&mut chunk) {
+                    Ok(0) | Err(_) => break,
+                    Ok(n) => data.extend_from_slice(&chunk[..n]),
+                }
+            }
+            let body = &data[header_end..data.len().min(header_end + length)];
+            let head = format!(
+                "HTTP/1.1 201 Created\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                body.len()
+            );
+            let _ = stream.write_all(head.as_bytes());
+            let _ = stream.write_all(body);
+            let _ = stream.flush();
+        }
+    });
+    addr
+}
+
+#[tokio::test]
+async fn post_json_sends_body_and_returns_status() {
+    let addr = spawn_echo_server();
+    let body = serde_json::json!({ "model": "test", "messages": [] });
+    let response = fetcher(local_policy())
+        .post_json(&url(addr, "/v1/chat/completions"), &body)
+        .await
+        .unwrap();
+    assert_eq!(response.status, 201);
+    let echoed: serde_json::Value = serde_json::from_str(&response.body).unwrap();
+    assert_eq!(echoed, body);
+}
+
+#[tokio::test]
+async fn post_json_enforces_ssrf_policy() {
+    let addr = spawn_echo_server();
+    let err = fetcher(FetchPolicy::default())
+        .post_json(&url(addr, "/"), &serde_json::json!({}))
+        .await
+        .unwrap_err();
+    assert!(matches!(err, ScrapeError::AddressBlocked(_)), "{err}");
+}

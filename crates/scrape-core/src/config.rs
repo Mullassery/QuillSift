@@ -18,7 +18,7 @@ pub fn default_user_agent() -> String {
 ///
 /// The defaults are conservative: private network access is disabled, redirects
 /// and response sizes are bounded, and both connect and total timeouts apply.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct FetchPolicy {
     /// `User-Agent` header value.
     pub user_agent: String,
@@ -39,6 +39,29 @@ pub struct FetchPolicy {
     /// This must only be enabled in explicitly trusted deployments; it is
     /// `false` by default and is the primary SSRF guard.
     pub allow_private_networks: bool,
+}
+
+struct RedactedHeaders<'a>(&'a http::HeaderMap);
+
+impl std::fmt::Debug for RedactedHeaders<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<{} header(s) redacted>", self.0.len())
+    }
+}
+
+impl std::fmt::Debug for FetchPolicy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FetchPolicy")
+            .field("user_agent", &self.user_agent)
+            .field("headers", &RedactedHeaders(&self.headers))
+            .field("max_response_bytes", &self.max_response_bytes)
+            .field("max_decompressed_bytes", &self.max_decompressed_bytes)
+            .field("max_redirects", &self.max_redirects)
+            .field("connect_timeout", &self.connect_timeout)
+            .field("total_timeout", &self.total_timeout)
+            .field("allow_private_networks", &self.allow_private_networks)
+            .finish()
+    }
 }
 
 impl Default for FetchPolicy {
@@ -253,5 +276,17 @@ mod tests {
     #[test]
     fn user_agent_is_versioned() {
         assert!(default_user_agent().starts_with("ScrapeOwl/"));
+    }
+
+    #[test]
+    fn debug_redacts_header_values() {
+        let mut policy = FetchPolicy::default();
+        policy.headers.insert(
+            http::header::AUTHORIZATION,
+            "Bearer super-secret-token".parse().unwrap(),
+        );
+        let rendered = format!("{policy:?}");
+        assert!(!rendered.contains("super-secret-token"), "{rendered}");
+        assert!(rendered.contains("redacted"), "{rendered}");
     }
 }

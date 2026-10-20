@@ -30,6 +30,8 @@ allow = [
     "CC0-1.0",
     # webpki-roots (transitive via reqwest's rustls backend) is permissive data.
     "CDLA-Permissive-2.0",
+    # borrow-or-share (transitive via jsonschema's referencing) is MIT-0.
+    "MIT-0",
 ]
 
 [bans]

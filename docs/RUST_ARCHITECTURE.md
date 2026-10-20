@@ -1,8 +1,8 @@
 # ScrapeOwl — Rust Architecture (proposed)
 
 Status: **living document**. M0 (`scrape-core`), M1 (`scrape-fetch`,
-`scrape-html`) and M2 (`scrape-graph`) are implemented; later milestones are
-still proposals. This
+`scrape-html`), M2 (`scrape-graph`) and M3 (`scrape-llm`, `scrape-extract`,
+`scrape-cli`) are implemented; later milestones are still proposals. This
 document states intended boundaries, dependencies and acceptance criteria.
 Dependency names are *candidates* until recorded as adopted in
 [DEPENDENCY_AND_LICENSE_AUDIT.md](./DEPENDENCY_AND_LICENSE_AUDIT.md).
@@ -225,12 +225,20 @@ reported before the next milestone.
   deadline + `CancellationToken`, fail-fast vs. continue failure isolation,
   retry with bounded deterministic jitter, and per-node `tracing` spans.
 
-### M3 — LLM extraction (Phase 3) + CLI (Phase 6 subset)
+### M3 — LLM extraction (Phase 3) + CLI (Phase 6 subset) — **done**
 - Scope: `scrape-llm` (OpenAI-compatible + Ollama adapters), `scrape-extract`
   (schemars→jsonschema validation, bounded repair), `scrape-cli`.
 - Acceptance: mocked-provider tests for structured output, retries, rate limit,
   cancellation; injection tests proving page text cannot change policy;
   schema-validation tests; deterministic no-LLM path tested without a provider.
+- Result (2026-10-20): 107 tests pass (24 core, 19 fetch, 15 html, 16 graph,
+  9 llm, 17 extract, 7 CLI). Provider tests use a local capture server and
+  verify paths, auth headers, request bodies, JSON mode and SSRF blocking;
+  extraction tests cover fences, schema-violation repair, bounded attempts,
+  injected-document containment, truncation, schemars generation and config
+  rejection. The CLI exposes `fetch` (markdown/text/json, no LLM) and `extract`
+  (provider, base URL, model, schema, env-based API key, `--allow-private`).
+  Not covered: live provider calls (no credentials in CI) and token counting.
 
 ### M4 — Crawl + search (Phase 5)
 - Scope: `scrape-crawl` (bounded, same-origin default, robots opt-in, dedup,

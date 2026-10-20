@@ -4,12 +4,22 @@ use futures_util::StreamExt;
 use reqwest::header::{CONTENT_TYPE, LOCATION};
 use reqwest::redirect::Policy;
 use reqwest::{Client, Response};
+use serde_json::Value;
 use tracing::{debug, instrument};
 use url::Url;
 
 use scrape_core::{block_reason, Document, FetchPolicy, Result, ScrapeError};
 
 use crate::guard::ensure_allowed;
+
+/// A raw HTTP response returned by [`Fetcher::post_json`].
+#[derive(Debug, Clone)]
+pub struct HttpResponse {
+    /// HTTP status code.
+    pub status: u16,
+    /// Response body decoded as UTF-8 (lossy).
+    pub body: String,
+}
 
 /// An SSRF-guarded HTTP client that enforces timeouts and response limits.
 #[derive(Debug, Clone)]
@@ -125,6 +135,48 @@ impl Fetcher {
                 html,
             ));
         }
+    }
+}
+
+impl Fetcher {
+    /// Sends a JSON `POST` without following redirects.
+    ///
+    /// The same SSRF, size and timeout policy as [`Fetcher::fetch`] applies.
+    /// Non-2xx responses are returned to the caller because provider error
+    /// bodies are often useful; the caller decides how to interpret them.
+    ///
+    /// # Errors
+    /// Returns a typed error for blocked URLs, DNS failures, timeouts,
+    /// oversized responses and transport failures.
+    pub async fn post_json(&self, url: &Url, body: &Value) -> Result<HttpResponse> {
+        let allow_private = self.policy.allow_private_networks;
+        ensure_allowed(url, allow_private)?;
+        validate_resolution(url, allow_private).await?;
+        let payload = serde_json::to_vec(body)
+            .map_err(|err| ScrapeError::Transport(format!("failed to encode JSON body: {err}")))?;
+        debug!(%url, bytes = payload.len(), "posting JSON");
+
+        let response = self
+            .client
+            .post(url.clone())
+            .header(CONTENT_TYPE, "application/json")
+            .body(payload)
+            .send()
+            .await
+            .map_err(|err| map_error(&err))?;
+        let status = response.status().as_u16();
+        if let Some(length) = response.content_length() {
+            if length > self.policy.max_response_bytes {
+                return Err(ScrapeError::ResponseTooLarge {
+                    limit: self.policy.max_response_bytes,
+                });
+            }
+        }
+        let body = read_bounded(response, self.policy.max_decompressed_bytes).await?;
+        Ok(HttpResponse {
+            status,
+            body: String::from_utf8_lossy(&body).into_owned(),
+        })
     }
 }
 

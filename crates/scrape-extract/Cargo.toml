@@ -1,0 +1,21 @@
+[package]
+name = "scrape-extract"
+description = "Schema-validated LLM extraction with bounded repair for ScrapeOwl"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+scrape-core.workspace = true
+scrape-llm.workspace = true
+serde_json.workspace = true
+schemars = "1"
+jsonschema = "0.59"
+
+[dev-dependencies]
+async-trait = "0.1"
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "time"] }

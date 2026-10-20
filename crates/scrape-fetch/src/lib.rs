@@ -15,5 +15,5 @@ mod dns;
 mod fetch;
 mod guard;
 
-pub use fetch::Fetcher;
+pub use fetch::{Fetcher, HttpResponse};
 pub use guard::ensure_allowed;
