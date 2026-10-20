@@ -120,7 +120,8 @@ locked versions; `cargo deny check` passes with the allowlist in
 | tokio-util | 0.7.20 | cancellation token | MIT | adopted |
 | borrow-or-share | 0.2.4 | borrowed/owned string helpers (transitive via `jsonschema`) | MIT-0 | adopted (transitive) |
 | schemars | 1.2.3 | derive JSON Schema from Rust types | MIT | adopted |
-| jsonschema | 0.59.0 | runtime JSON Schema validation | MIT | adopted |
+| jsonschema | 0.59.0 | runtime JSON Schema validation (default features off: no HTTP/file `$ref` resolution) | MIT | adopted |
+| pyo3 | 0.30.1 | Python bindings (abi3, ≥3.9) | MIT OR Apache-2.0 | adopted |
 | tracing-subscriber | 0.3.23 | log filtering/formatting (CLI) | MIT | adopted |
 | clap | 4.6.7 | CLI argument parsing | MIT OR Apache-2.0 | adopted |
 | flate2 | 1.1.10 | gzip fixture in tests | MIT OR Apache-2.0 | dev-only |
@@ -139,6 +140,7 @@ bundled CA roots, not code under a copyleft term. It is allowlisted explicitly i
 | ipnet | CIDR policy | MIT/Apache-2.0 |
 | sha2 | content hashing | MIT/Apache-2.0 |
 | tiktoken-rs | token counting | MIT |
+| maturin / twine | Python packaging and upload | MIT/Apache-2.0 |
 | cargo-deny / cargo-audit / cargo-fuzz | tooling | MIT/Apache-2.0 |
 
 No candidate is adopted until it is verified and recorded here.

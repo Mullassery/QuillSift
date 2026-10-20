@@ -8,6 +8,7 @@ members = [
     "crates/scrape-llm",
     "crates/scrape-extract",
     "crates/scrape-cli",
+    "crates/scrape-python",
 ]
 
 [workspace.package]
@@ -39,7 +40,8 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 clap = { version = "4", features = ["derive"] }
 schemars = "1"
-jsonschema = "0.59"
+jsonschema = { version = "0.59", default-features = false }
+pyo3 = { version = "0.30", features = ["abi3-py39"] }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

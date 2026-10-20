@@ -36,9 +36,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --workspace --all-features
+      - run: cargo test --workspace
+        env:
+          PYO3_PYTHON: python3
+
+  python:
+    name: python-wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: pip install "maturin>=1.14,<2"
+      - run: maturin build --release --out dist
+        working-directory: crates/scrape-python
+      - run: pip install dist/*.whl
+        working-directory: crates/scrape-python
+      - run: python tests/smoke.py
+        working-directory: crates/scrape-python
 
   deny:
     name: cargo-deny

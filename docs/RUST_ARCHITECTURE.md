@@ -38,7 +38,7 @@ ScrapeOwl/
 │   ├── scrape-api/           # REST service + middleware (binary)
 │   ├── scrape-cli/           # CLI (binary)
 │   ├── scrape-mcp/           # MCP server (binary)
-│   └── scrape-python/        # OPTIONAL PyO3 bindings (later)
+│   └── scrape-python/        # PyO3 bindings (PyPI package `scrapeowl`)
 ├── docs/
 └── tests/                    # cross-crate integration (local fixture server)
 ```
@@ -238,6 +238,9 @@ reported before the next milestone.
   injected-document containment, truncation, schemars generation and config
   rejection. The CLI exposes `fetch` (markdown/text/json, no LLM) and `extract`
   (provider, base URL, model, schema, env-based API key, `--allow-private`).
+  Python bindings (`scrape-python`, PyPI package `scrapeowl`) expose blocking
+  `fetch`/`extract` functions that release the GIL and reuse the same guarded
+  fetcher and extractor; a wheel smoke test runs against a local HTTP server.
   Not covered: live provider calls (no credentials in CI) and token counting.
 
 ### M4 — Crawl + search (Phase 5)

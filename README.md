@@ -6,9 +6,10 @@
 > with redirect, size and timeout limits), `scrape-graph` (bounded DAG
 > execution with deadlines, cancellation, retries and failure isolation),
 > `scrape-llm` (`OpenAI`-compatible + Ollama chat adapters),
-> `scrape-extract` (schema-validated extraction with bounded repair) and
-> `scrape-cli` (the `scrapeowl` binary). CI (fmt, clippy, test, `cargo-deny`,
-> `cargo-audit`) passes. There is **no crawl, browser, API or MCP
+> `scrape-extract` (schema-validated extraction with bounded repair),
+> `scrape-cli` (the `scrapeowl` binary) and `scrape-python` (PyO3 bindings
+> published to PyPI). CI (fmt, clippy, test, `cargo-deny`, `cargo-audit`,
+> Python wheel smoke tests) passes. There is **no crawl, browser, API or MCP
 > functionality yet.** Nothing here is a claim of feature parity or production
 > readiness.
 
@@ -40,7 +41,8 @@ crates/
 ├── scrape-graph/                     # bounded DAG executor (deadline/cancel/retry)
 ├── scrape-llm/                       # OpenAI-compatible + Ollama chat adapters
 ├── scrape-extract/                   # schema-validated extraction + bounded repair
-└── scrape-cli/                       # `scrapeowl` command-line binary
+├── scrape-cli/                       # `scrapeowl` command-line binary
+└── scrape-python/                    # PyO3 bindings (PyPI package `scrapeowl`)
 docs/
 ├── UPSTREAM_AUDIT.md                 # read-only audit of ScrapeGraphAI v2.3.1
 ├── FEATURE_PARITY_MATRIX.md          # per-feature goals, priorities, out-of-scope
@@ -56,8 +58,29 @@ deny.toml                             # cargo-deny license/advisory policy
 `Document`/`Metadata`/`Extracted`/`Extractor`, and SSRF address classification.
 The other crates build on it: `scrape-fetch` (guarded HTTP), `scrape-html`
 (deterministic extraction), `scrape-graph` (typed DAG execution), `scrape-llm`
-(provider adapters), `scrape-extract` (schema-validated LLM extraction) and
-`scrape-cli` (the `scrapeowl` binary).
+(provider adapters), `scrape-extract` (schema-validated LLM extraction),
+`scrape-cli` (the `scrapeowl` binary) and `scrape-python` (PyO3 bindings).
+
+## Python
+
+```bash
+pip install scrapeowl
+```
+
+```python
+import scrapeowl
+
+markdown = scrapeowl.fetch("https://example.com")
+data = scrapeowl.fetch("https://example.com", format="json")
+
+schema = {"type": "object", "properties": {"title": {"type": "string"}}}
+result = scrapeowl.extract("https://example.com", schema, model="gpt-4o-mini")
+```
+
+The Python package wraps the same guarded fetcher and extractor as the CLI.
+Blocking calls release the GIL. Local Ollama endpoints require
+`allow_private=True`; `OpenAI` keys are read from the environment (default
+`OPENAI_API_KEY`).
 
 ## CLI usage
 
@@ -92,8 +115,8 @@ cargo audit
 ## Roadmap (see RUST_ARCHITECTURE.md for acceptance criteria)
 
 M0 workspace (done) · M1 deterministic fetch/parse (done) · M2 typed graph
-engine (done) · M3 LLM extraction + CLI (done) · M4 crawl/search · M5 optional
-browser · M6 API/MCP · M7 hardening/benchmarks · M8 docs/release.
+engine (done) · M3 LLM extraction + CLI + Python wheel (done) · M4 crawl/search ·
+M5 optional browser · M6 API/MCP · M7 hardening/benchmarks · M8 docs/release.
 
 ## Open items
 
