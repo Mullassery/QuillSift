@@ -15,6 +15,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 scrape-core.workspace = true
+scrape-crawl.workspace = true
 scrape-extract.workspace = true
 scrape-fetch.workspace = true
 scrape-html.workspace = true

@@ -2,17 +2,19 @@
 
 use std::fs;
 use std::path::Path;
+use std::time::Duration;
 
 use http::HeaderValue;
 use serde_json::Value;
 
-use scrape_core::{Extractor, FetchPolicy, ScrapeError};
+use scrape_core::{CrawlPolicy, Extractor, FetchPolicy, ScrapeError};
+use scrape_crawl::Crawler;
 use scrape_extract::{ExtractionConfig, LlmExtractor};
 use scrape_fetch::Fetcher;
 use scrape_html::StructuralExtractor;
 use scrape_llm::{build_provider, ProviderConfig, ProviderKind};
 
-use crate::cli::{ExtractArgs, FetchArgs, Format, Provider};
+use crate::cli::{CrawlArgs, ExtractArgs, FetchArgs, Format, Provider};
 
 /// CLI result type: any error type that is thread-safe and printable.
 pub type CliResult = Result<(), Box<dyn std::error::Error + Send + Sync>>;
@@ -39,6 +41,47 @@ pub async fn fetch(args: FetchArgs) -> CliResult {
         Format::Markdown => println!("{}", extracted.markdown.trim_end()),
         Format::Text => println!("{}", extracted.text.trim_end()),
         Format::Json => println!("{}", serde_json::to_string_pretty(&extracted)?),
+    }
+    Ok(())
+}
+
+/// Runs `crawl`.
+///
+/// # Errors
+/// Returns configuration, fetch or serialization errors. Per-page failures are
+/// included in the report instead of aborting the job.
+pub async fn crawl(args: CrawlArgs) -> CliResult {
+    let crawl_policy = CrawlPolicy {
+        max_depth: args.max_depth,
+        max_pages: args.max_pages,
+        same_origin_only: !args.cross_origin,
+        respect_robots: !args.ignore_robots,
+        crawl_delay: args.crawl_delay_ms.map(Duration::from_millis),
+        max_concurrency: args.concurrency,
+    };
+    let report = Crawler::new(policy(args.allow_private), crawl_policy)?
+        .crawl(&[args.url])
+        .await?;
+    match args.format {
+        Format::Json => println!("{}", serde_json::to_string_pretty(&report)?),
+        Format::Markdown => {
+            let pages: Vec<&str> = report
+                .pages
+                .iter()
+                .filter_map(|page| page.content.as_ref())
+                .map(|content| content.markdown.trim_end())
+                .collect();
+            println!("{}", pages.join("\n\n---\n\n"));
+        }
+        Format::Text => {
+            let pages: Vec<&str> = report
+                .pages
+                .iter()
+                .filter_map(|page| page.content.as_ref())
+                .map(|content| content.text.trim_end())
+                .collect();
+            println!("{}", pages.join("\n\n---\n\n"));
+        }
     }
     Ok(())
 }

@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "scrapeowl"
-version = "0.1.0"
+version = "0.2.2"
 description = "Deterministic scraping and schema-validated LLM extraction powered by a Rust core"
 readme = "README.md"
 requires-python = ">=3.9"

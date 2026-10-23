@@ -153,8 +153,8 @@ ScrapeOwl is a self-hosted scraping engine. Assets to protect:
 | SSRF, limits, TLS, parsing (T1,T5,T6,T7) | M1 |
 | Graph cancellation/deadlines/retries (T5/T6 support) | M2 |
 | Injection, secrets, LLM output (T3,T4,T8,T10) | M3 |
-| Crawl compliance (T12) | M4 |
-| Browser SSRF/TLS (T1,T5) | M5 |
+| Crawl compliance (T12) | M4 (legacy); MudFish for new crawls |
+| Browser SSRF/TLS (T1,T5) | MudFish `render_js`, not ScrapeOwl |
 | API/MCP auth, quotas, caps (T9,T11) | M6 |
 | Fuzz sweep + audit (T7 and regression) | M7 |
 

@@ -25,6 +25,8 @@ pub enum Command {
     Fetch(FetchArgs),
     /// Fetch a URL and extract schema-validated JSON with an LLM.
     Extract(ExtractArgs),
+    /// Legacy bounded crawl; prefer `MudFish` for new crawling and JS rendering.
+    Crawl(CrawlArgs),
 }
 
 /// Output formats for `fetch`.
@@ -48,6 +50,37 @@ pub struct FetchArgs {
     pub allow_private: bool,
     /// Output format.
     #[arg(long, value_enum, default_value_t = Format::Markdown)]
+    pub format: Format,
+}
+
+/// Arguments for `crawl`.
+#[derive(Debug, Args)]
+pub struct CrawlArgs {
+    /// Seed URL.
+    pub url: Url,
+    /// Maximum link-following depth from the seed.
+    #[arg(long, default_value_t = 1)]
+    pub max_depth: u32,
+    /// Maximum number of pages fetched in one job.
+    #[arg(long, default_value_t = 50)]
+    pub max_pages: usize,
+    /// Allow links and redirects to leave the seed origin.
+    #[arg(long)]
+    pub cross_origin: bool,
+    /// Ignore `robots.txt` rules.
+    #[arg(long)]
+    pub ignore_robots: bool,
+    /// Delay between requests to the same host, in milliseconds.
+    #[arg(long)]
+    pub crawl_delay_ms: Option<u64>,
+    /// Maximum number of in-flight requests.
+    #[arg(long, default_value_t = 4)]
+    pub concurrency: usize,
+    /// Allow loopback/private destinations (trusted deployments only).
+    #[arg(long)]
+    pub allow_private: bool,
+    /// Output format.
+    #[arg(long, value_enum, default_value_t = Format::Json)]
     pub format: Format,
 }
 
@@ -108,7 +141,41 @@ mod tests {
                 assert!(!args.allow_private);
                 assert_eq!(args.url.as_str(), "https://example.com/");
             }
-            Command::Extract(_) => panic!("expected fetch"),
+            Command::Extract(_) | Command::Crawl(_) => panic!("expected fetch"),
+        }
+    }
+
+    #[test]
+    fn parses_crawl_options() {
+        let cli = Cli::try_parse_from([
+            "scrapeowl",
+            "crawl",
+            "https://example.com",
+            "--max-depth",
+            "2",
+            "--max-pages",
+            "5",
+            "--cross-origin",
+            "--ignore-robots",
+            "--crawl-delay-ms",
+            "250",
+            "--concurrency",
+            "2",
+            "--format",
+            "text",
+        ])
+        .unwrap();
+        match cli.command {
+            Command::Crawl(args) => {
+                assert_eq!(args.max_depth, 2);
+                assert_eq!(args.max_pages, 5);
+                assert!(args.cross_origin);
+                assert!(args.ignore_robots);
+                assert_eq!(args.crawl_delay_ms, Some(250));
+                assert_eq!(args.concurrency, 2);
+                assert_eq!(args.format, Format::Text);
+            }
+            Command::Fetch(_) | Command::Extract(_) => panic!("expected crawl"),
         }
     }
 
@@ -141,7 +208,7 @@ mod tests {
                 assert!(args.allow_private);
                 assert_eq!(args.temperature, Some(0.2));
             }
-            Command::Fetch(_) => panic!("expected extract"),
+            Command::Fetch(_) | Command::Crawl(_) => panic!("expected extract"),
         }
     }
 

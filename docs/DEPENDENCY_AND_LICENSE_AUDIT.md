@@ -1,6 +1,6 @@
 # Dependency & License Audit
 
-- **Date:** 2026-10-20
+- **Date:** 2026-10-22
 - **Scope:** upstream ScrapeGraphAI `v2.3.1` dependencies, the reuse decision,
   and the policy for adopting Rust dependencies.
 
@@ -103,8 +103,9 @@ locked versions; `cargo deny check` passes with the allowlist in
 
 | Crate | Version | Purpose | Resolved license | Status |
 |---|---|---|---|---|
-| tokio | 1.54.0 | async runtime | MIT | adopted |
+| tokio | 1.54.1 | async runtime | MIT | adopted |
 | reqwest | 0.12.28 | HTTP client (rustls backend) | MIT OR Apache-2.0 | adopted |
+| rustls-webpki | 0.103.16 | TLS certificate verification (transitive via rustls) | ISC | adopted (transitive) |
 | webpki-roots | 1.0.10 | Mozilla root store | CDLA-Permissive-2.0 | adopted (transitive; permissive data license) |
 | scraper | 0.27.0 | HTML parsing | ISC | adopted |
 | ego-tree | 0.11.0 | DOM arena (scraper dependency) | ISC | adopted |
@@ -162,3 +163,6 @@ No candidate is adopted until it is verified and recorded here.
   M0–M1 crates (§4); repeat for each new adoption.
 - ~~Add `deny.toml` with an explicit allowlist and run it in CI from M0.~~ Done:
   `deny.toml` is committed and enforced by CI (`cargo deny check` passes).
+- Security patch (2026-10-22): upgraded tokio 1.54.0 → 1.54.1
+  (RUSTSEC-2026-0384) and rustls-webpki 0.103.15 → 0.103.16
+  (RUSTSEC-2026-0382). `cargo audit` and `cargo deny check` now pass.

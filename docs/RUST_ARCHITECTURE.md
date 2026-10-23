@@ -1,9 +1,11 @@
 # ScrapeOwl — Rust Architecture (proposed)
 
 Status: **living document**. M0 (`scrape-core`), M1 (`scrape-fetch`,
-`scrape-html`), M2 (`scrape-graph`) and M3 (`scrape-llm`, `scrape-extract`,
-`scrape-cli`) are implemented; later milestones are still proposals. This
-document states intended boundaries, dependencies and acceptance criteria.
+`scrape-html`), M2 (`scrape-graph`), M3 (`scrape-llm`, `scrape-extract`,
+`scrape-cli`) and M4a (`scrape-crawl`, legacy compatibility fallback) are
+implemented; later milestones are still proposals. Crawling and browser
+rendering beyond that fallback are delegated to MudFish. This document states
+intended boundaries, dependencies and acceptance criteria.
 Dependency names are *candidates* until recorded as adopted in
 [DEPENDENCY_AND_LICENSE_AUDIT.md](./DEPENDENCY_AND_LICENSE_AUDIT.md).
 
@@ -33,8 +35,7 @@ ScrapeOwl/
 │   ├── scrape-llm/           # provider abstraction + structured generation
 │   ├── scrape-graph/         # typed DAG + scheduler/executor
 │   ├── scrape-extract/       # schema-driven extraction + validation
-│   ├── scrape-crawl/         # bounded crawler + dedup
-│   ├── scrape-browser/       # OPTIONAL JS rendering adapter (feature-gated)
+│   ├── scrape-crawl/         # legacy bounded crawler + dedup (compatibility)
 │   ├── scrape-api/           # REST service + middleware (binary)
 │   ├── scrape-cli/           # CLI (binary)
 │   ├── scrape-mcp/           # MCP server (binary)
@@ -47,12 +48,13 @@ Crate boundaries (rationale):
 
 - `scrape-core` has no network/async-heavy deps; everything else depends on it.
 - `scrape-fetch` owns all HTTP and the SSRF/limit policy; nothing else opens
-  sockets except `scrape-browser` and `scrape-llm`, which reuse the same
-  address-policy types from `scrape-core`.
+  sockets except `scrape-llm`, which reuses the same address-policy types from
+  `scrape-core`.
 - `scrape-html` is pure (bytes/str in → typed structure out); easily fuzzed.
 - `scrape-graph` depends on `scrape-core` only and drives nodes via traits, so
   pipelines are testable with mock nodes.
-- `scrape-browser` is feature-gated (`browser`) and never a default dependency.
+- Browser rendering is not implemented in ScrapeOwl; use MudFish's opt-in
+  `render_js` path instead of adding a browser dependency here.
 - Binaries (`scrape-api`, `scrape-cli`, `scrape-mcp`) are thin; logic lives in
   libraries.
 
@@ -243,22 +245,44 @@ reported before the next milestone.
   fetcher and extractor; a wheel smoke test runs against a local HTTP server.
   Not covered: live provider calls (no credentials in CI) and token counting.
 
-### M4 — Crawl + search (Phase 5)
-- Scope: `scrape-crawl` (bounded, same-origin default, robots opt-in, dedup,
-  content dedup), pluggable search provider.
+### M4a — Bounded crawl (Phase 5 subset) — **done, legacy**
+- Status: kept for CLI/Python compatibility with bug fixes only. MudFish is the
+  supported crawler and browser-rendering path; do not add crawl features to
+  ScrapeOwl.
+- Scope: `scrape-crawl` (bounded BFS, same-origin default, robots enforced by
+  default with opt-out, URL dedup, crawl delay, concurrency), CLI `crawl` and
+  Python `crawl`.
 - Acceptance: crawl-depth/page-limit/same-origin/dedup/robots tests against the
   fixture server; polite-rate test.
+- Result (2026-10-22): 122 workspace tests pass, including 6 robots/unit tests
+  and 8 fixture-server crawl tests. Implemented: breadth-first traversal with
+  deterministic ordering, URL-fragment dedup, depth/page caps, same-origin
+  scope (including redirect checks), per-origin crawl delay, bounded
+  concurrency, `robots.txt` user-agent groups/`Allow`/`Disallow`/`Crawl-delay`
+  with `*` and `$` support, deny-on-unavailable robots behavior, bounded frontier
+  growth, and non-fatal per-page failures. The CLI exposes
+  `crawl`; the Python wheel exposes `crawl`, exercised by the wheel smoke test.
+- Not covered: content-hash dedup, resumable crawls and search providers.
 
-### M5 — Browser adapter (optional) (Phase 5)
-- Scope: `scrape-browser` feature-gated JS rendering, SSRF applied to
-  navigation/iframes/subresources, TLS always verified, no stealth.
-- Acceptance: rendered-page test behind the feature flag; SSRF navigation
-  tests; test proving core builds/tests without the feature.
+### M4b — Search providers (Phase 5 subset) — planned
+- Scope: pluggable search provider abstraction plus a fan-out pipeline. Use
+  MudFish when the fan-out requires crawling or JavaScript rendering.
+- Acceptance: provider-mocked search → fetch → extract tests, output caps,
+  provider errors and a documented credential/ToS policy.
+- Deferred: no search backend is selected yet. Shipping a default scraper for a
+  third-party search engine would be fragile and may violate its terms.
+
+### M5 — Browser adapter — **superseded**
+- ScrapeOwl does not implement browser rendering. Use MudFish's opt-in
+  `render_js` path, which owns headless-Chrome lifecycle, rendering and its
+  documented SSRF caveat.
+- ScrapeOwl remains browser-free so the deterministic path stays small.
 
 ### M6 — API + MCP (Phase 6)
-- Scope: `scrape-api` (scrape/extract/crawl, health/ready, request ids, typed
-  errors, API-key auth, quotas/rate limits, max job duration); `scrape-mcp`
-  (validated args, timeouts, output caps).
+- Scope: `scrape-api` (scrape/extract, health/ready, request ids, typed errors,
+  API-key auth, quotas/rate limits, max job duration); `scrape-mcp` (validated
+  args, timeouts, output caps). Crawl remains a legacy CLI/Python fallback, not
+  part of the new API surface.
 - Acceptance: auth failure, quota, rate-limit, job-duration, and error-envelope
   tests; MCP argument-validation and output-cap tests.
 

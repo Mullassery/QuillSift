@@ -86,6 +86,24 @@ def main():
         else:
             raise AssertionError("loopback fetch should have been blocked")
 
+        report = scrapeowl.crawl(
+            base, max_depth=1, max_pages=3, allow_private=True
+        )
+        assert set(report) == {"seeds", "pages", "failures", "truncated"}, report
+        assert len(report["pages"]) == 2, report
+        assert report["pages"][0]["url"] == base + "/", report["pages"][0]
+        assert report["pages"][1]["url"] == base + "/next", report["pages"][1]
+        assert report["pages"][0]["content"]["metadata"]["title"] == "Demo"
+        assert not report["truncated"], report
+        assert not report["failures"], report["failures"]
+
+        try:
+            scrapeowl.crawl(base, max_pages=0, allow_private=True)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("zero max_pages should raise ValueError")
+
         os.environ["TEST_API_KEY"] = "test-token"
         Handler.calls = 0
         Handler.fail_first = True

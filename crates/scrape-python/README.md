@@ -1,8 +1,8 @@
 # scrapeowl
 
 Python bindings for [ScrapeOwl](https://github.com/Mullassery/ScrapeOwl): a
-Rust-native, self-hosted scraping engine with a deterministic (LLM-free) path
-and schema-validated LLM extraction.
+Rust-native, self-hosted scraping engine with a deterministic (LLM-free) path,
+a legacy bounded crawler and schema-validated LLM extraction.
 
 ```bash
 pip install scrapeowl
@@ -24,9 +24,22 @@ result = scrapeowl.extract(
     schema,
     model="gpt-4o-mini",  # reads OPENAI_API_KEY by default
 )
+
+report = scrapeowl.crawl(
+    "https://example.com",
+    max_depth=2,
+    max_pages=25,
+    respect_robots=True,
+)
+for page in report["pages"]:
+    print(page["url"], page["content"]["metadata"]["title"])
 ```
 
-`fetch` never needs an LLM or credentials. `extract` supports `provider="openai"`
+`fetch` never needs an LLM or credentials. `crawl` is a legacy fallback: it is
+breadth-first, same-origin by default, deduplicates URLs and returns per-page
+failures without aborting the job, but new crawling and JavaScript-rendering
+work should use [MudFish](https://pypi.org/project/mudfish/). `extract` supports
+`provider="openai"`
 (`OpenAI`-compatible `/chat/completions`) and `provider="ollama"` (`/api/chat`);
 output must parse as JSON and validate against the schema, with bounded repair.
 

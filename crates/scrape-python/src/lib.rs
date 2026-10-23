@@ -5,6 +5,7 @@
 //! client and schema-validated extractor as the CLI.
 
 use std::sync::OnceLock;
+use std::time::Duration;
 
 use http::HeaderValue;
 use pyo3::exceptions::{PyPermissionError, PyRuntimeError, PyValueError};
@@ -12,7 +13,8 @@ use pyo3::prelude::*;
 use serde_json::Value;
 use url::Url;
 
-use scrape_core::{ErrorKind, Extracted, Extractor, FetchPolicy, ScrapeError};
+use scrape_core::{CrawlPolicy, ErrorKind, Extracted, Extractor, FetchPolicy, ScrapeError};
+use scrape_crawl::Crawler;
 use scrape_extract::{ExtractionConfig, LlmExtractor};
 use scrape_fetch::Fetcher;
 use scrape_html::StructuralExtractor;
@@ -249,10 +251,63 @@ fn extract(
     json_to_py(py, &value)
 }
 
+/// Legacy bounded crawl; prefer `MudFish` for new crawling and JS rendering.
+///
+/// Returns a dict with `seeds`, `pages`, `failures` and `truncated` keys. Pages
+/// include their final URL, depth, status, content type and deterministic
+/// content for HTML. Per-page failures are returned in the report instead of
+/// raising. Private destinations are refused unless `allow_private=True`.
+///
+/// # Errors
+/// Raises `ValueError` for invalid URLs or policies, `PermissionError` for
+/// blocked destinations and `RuntimeError` for transport failures.
+#[pyfunction]
+#[pyo3(signature = (
+    url,
+    *,
+    max_depth = 1,
+    max_pages = 50,
+    same_origin = true,
+    respect_robots = true,
+    crawl_delay_ms = None,
+    concurrency = 4,
+    allow_private = false
+))]
+#[allow(clippy::too_many_arguments)]
+fn crawl(
+    py: Python<'_>,
+    url: &str,
+    max_depth: u32,
+    max_pages: usize,
+    same_origin: bool,
+    respect_robots: bool,
+    crawl_delay_ms: Option<u64>,
+    concurrency: usize,
+    allow_private: bool,
+) -> PyResult<Py<PyAny>> {
+    let seed = Url::parse(url).map_err(|err| to_pyerr(err.into()))?;
+    let crawl_policy = CrawlPolicy {
+        max_depth,
+        max_pages,
+        same_origin_only: same_origin,
+        respect_robots,
+        crawl_delay: crawl_delay_ms.map(Duration::from_millis),
+        max_concurrency: concurrency,
+    };
+    let crawler = Crawler::new(policy(allow_private), crawl_policy).map_err(to_pyerr)?;
+    let report = py
+        .detach(|| runtime().block_on(crawler.crawl(&[seed])))
+        .map_err(to_pyerr)?;
+    let value = serde_json::to_value(&report)
+        .map_err(|err| PyRuntimeError::new_err(format!("failed to encode result: {err}")))?;
+    json_to_py(py, &value)
+}
+
 #[pymodule]
 fn _scrapeowl(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add_function(wrap_pyfunction!(fetch, m)?)?;
     m.add_function(wrap_pyfunction!(extract, m)?)?;
+    m.add_function(wrap_pyfunction!(crawl, m)?)?;
     Ok(())
 }

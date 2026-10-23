@@ -26,8 +26,8 @@ Legend
 | Timeouts (connect/read) | Partial; advisory in generation | Hard connect + total deadlines | P0 | |
 | Redirects | Browser/requests default | Bounded redirects with SSRF re-check | P0 | Upstream has no SSRF/redirect policy |
 | Response size / decompression caps | None observed | Byte + decompressed caps | P0 | |
-| robots.txt | Only `RobotsNode` | Opt-in robots policy in crawler/fetch | P1 | Upstream does not enforce globally |
-| Crawl delay | None | Configurable polite delay | P1 | |
+| robots.txt | Only `RobotsNode` | Robots policy enforced by default in the legacy crawler | P1 | Implemented in `scrape-crawl` (M4a); MudFish is the supported crawler |
+| Crawl delay | None | Configurable polite delay | P1 | Legacy per-origin delay in `scrape-crawl`; use MudFish for new crawls |
 | Offline HTML→Markdown | `html2text` via `convert_to_md` | `scrape-html` markdown conversion | P0 | |
 | Main-content extraction | `Html2TextTransformer` | Deterministic readability extraction | P0 | |
 | Links / images extraction | `ParseNode` regex | DOM-based link/image extraction | P0 | |
@@ -64,7 +64,7 @@ Legend
 | `SmartScraperMultiLiteGraph` | fan-out lite + merge | Multi-page parse/chunk | P2 |
 | `SmartScraperMultiConcatGraph` | fan-out + conditional merge/concat | Concat/merge policy | P2 |
 | `SmartScraperMultiBatchGraph` | OpenAI Batch API (paid) | Provider batch adapter (opt-in) | P2 |
-| `SearchGraph` | search → fan-out scrape → merge | Pluggable search provider + crawl | P1 |
+| `SearchGraph` | search → fan-out scrape → merge | Pluggable search provider + fan-out; delegate crawl to MudFish | P1 |
 | `OmniSearchGraph` | search + vision | Search + media (opt-in) | P2 |
 | `SearchLinkGraph` | fetch → link list | Link discovery pipeline | P1 |
 | `DepthSearchGraph` | k-level BFS + Qdrant RAG | Bounded depth + optional vector store | P2 |
@@ -98,30 +98,30 @@ Legend
 
 | Feature | Upstream behavior | ScrapeOwl goal | Priority | Notes |
 |---|---|---|---|---|
-| JS rendering | Playwright (+ optional Selenium) | Optional isolated `scrape-browser` adapter | P1 | Never required for core |
-| Stealth / anti-bot | `undetected-playwright` | **Not implemented by default** | OOS | Explicitly excluded |
+| JS rendering | Playwright (+ optional Selenium) | Use MudFish `render_js`; no browser in ScrapeOwl | OOS | Delegated, not required for core |
+| Stealth / anti-bot | `undetected-playwright` | **Not implemented** | OOS | Explicitly excluded |
 | Downloads / file access | Not restricted | Disabled by default | P0 (policy) | |
-| SSRF for browser nav/iframes/subresources | Not addressed | Same SSRF policy as HTTP | P1 | |
-| TLS verification | Disabled on some paths | Always verified | P0 | |
-| Screenshots | `FetchScreenNode` | Optional, isolated | P2 | |
+| SSRF for browser nav/iframes/subresources | Not addressed | MudFish owns browser SSRF handling | OOS | ScrapeOwl has no browser path |
+| TLS verification | Disabled on some paths | Always verified on HTTP fetches | P0 | |
+| Screenshots | `FetchScreenNode` | Not planned in ScrapeOwl | OOS | Use MudFish/browser tooling if needed |
 
 ## F. Crawling
 
-| Feature | Upstream behavior | ScrapeOwl goal | Priority |
-|---|---|---|---|
-| Multi-page crawl with depth | `FetchNodeLevelK` (BFS) | Bounded crawler with max depth | P1 |
-| Same-origin restriction | `only_inside_links` option | Default same-origin, configurable | P1 |
-| URL dedup / canonicalization | Membership scans | Canonical key set | P0 |
-| Content dedup | None | Hash-based content dedup | P1 |
-| Robots + crawl delay | Not enforced | Opt-in enforcement | P1 |
-| Resumable / incremental crawl | None | Deferred (cache/checkpoint) | P2 |
+| Feature | Upstream behavior | ScrapeOwl goal | Priority | Notes / risk |
+|---|---|---|---|---|
+| Multi-page crawl with depth | `FetchNodeLevelK` (BFS) | Legacy bounded crawler; MudFish preferred | P1 | Implemented in `scrape-crawl` (M4a), fixes only |
+| Same-origin restriction | `only_inside_links` option | Legacy default same-origin, configurable | P1 | Redirects checked; MudFish for new crawls |
+| URL dedup / canonicalization | Membership scans | Canonical key set | P0 | Fragment-normalized URL set |
+| Content dedup | None | Not planned in ScrapeOwl | OOS | Crawl processing is delegated to MudFish |
+| Robots + crawl delay | Not enforced | Legacy enforcement with opt-out | P1 | MudFish is the supported politeness layer |
+| Resumable / incremental crawl | None | MudFish SQLite frontier | OOS | Not planned in ScrapeOwl |
 
 ## G. Interfaces
 
 | Feature | Upstream behavior | ScrapeOwl goal | Priority |
 |---|---|---|---|
 | CLI | None first-class | `scrape-cli` (url/prompt/schema/output) | P0 |
-| REST API | None in OSS | `scrape-api` (scrape/extract/crawl) + health/ready | P1 |
+| REST API | None in OSS | `scrape-api` (scrape/extract) + health/ready | P1 |
 | Auth for non-local | N/A | API-key auth, per-user quotas/rate limits | P1 |
 | Request IDs + structured errors | N/A | Typed error envelope + request id | P1 |
 | MCP server | Separate `scrapegraph-mcp` repo | `scrape-mcp` with validated args + output cap | P1 |

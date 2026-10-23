@@ -18,6 +18,7 @@ async fn main() -> ExitCode {
     let result = match cli.command {
         Command::Fetch(args) => commands::fetch(args).await,
         Command::Extract(args) => commands::extract(args).await,
+        Command::Crawl(args) => commands::crawl(args).await,
     };
     match result {
         Ok(()) => ExitCode::SUCCESS,

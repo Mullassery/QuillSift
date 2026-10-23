@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 __version__: str
 
@@ -21,4 +21,17 @@ def extract(
     max_attempts: int = 3,
     temperature: float = 0.0,
     max_input_chars: int = 100000,
+) -> Dict[str, Any]: ...
+
+# Legacy bounded crawl; prefer MudFish for new crawling and JS rendering.
+def crawl(
+    url: str,
+    *,
+    max_depth: int = 1,
+    max_pages: int = 50,
+    same_origin: bool = True,
+    respect_robots: bool = True,
+    crawl_delay_ms: Optional[int] = None,
+    concurrency: int = 4,
+    allow_private: bool = False,
 ) -> Dict[str, Any]: ...

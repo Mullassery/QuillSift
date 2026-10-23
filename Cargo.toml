@@ -5,6 +5,7 @@ members = [
     "crates/scrape-html",
     "crates/scrape-fetch",
     "crates/scrape-graph",
+    "crates/scrape-crawl",
     "crates/scrape-llm",
     "crates/scrape-extract",
     "crates/scrape-cli",
@@ -12,19 +13,20 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.2"
 edition = "2021"
 license = "Apache-2.0"
 repository = "https://github.com/Mullassery/ScrapeOwl"
 authors = ["ScrapeOwl contributors"]
 
 [workspace.dependencies]
-scrape-core = { path = "crates/scrape-core", version = "0.1.0" }
-scrape-graph = { path = "crates/scrape-graph", version = "0.1.0" }
-scrape-fetch = { path = "crates/scrape-fetch", version = "0.1.0" }
-scrape-html = { path = "crates/scrape-html", version = "0.1.0" }
-scrape-llm = { path = "crates/scrape-llm", version = "0.1.0" }
-scrape-extract = { path = "crates/scrape-extract", version = "0.1.0" }
+scrape-core = { path = "crates/scrape-core", version = "0.2.2" }
+scrape-graph = { path = "crates/scrape-graph", version = "0.2.2" }
+scrape-fetch = { path = "crates/scrape-fetch", version = "0.2.2" }
+scrape-html = { path = "crates/scrape-html", version = "0.2.2" }
+scrape-crawl = { path = "crates/scrape-crawl", version = "0.2.2" }
+scrape-llm = { path = "crates/scrape-llm", version = "0.2.2" }
+scrape-extract = { path = "crates/scrape-extract", version = "0.2.2" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
