@@ -1,6 +1,6 @@
 <div align="center">
 
-# ScrapeOwl
+# QuillSift
 
 **Self-hosted web scraping for AI, written in Rust.**
 
@@ -8,9 +8,9 @@ Deterministic HTML → Markdown, text, links and JSON by default.
 Optional schema-validated LLM extraction with OpenAI-compatible APIs or Ollama.
 No browser. No paid scraping API. No vendor lock-in.
 
-[![CI](https://github.com/Mullassery/ScrapeOwl/actions/workflows/ci.yml/badge.svg)](https://github.com/Mullassery/ScrapeOwl/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/scrapeowl.svg)](https://pypi.org/project/scrapeowl/)
-[![Python](https://img.shields.io/pypi/pyversions/scrapeowl.svg)](https://pypi.org/project/scrapeowl/)
+[![CI](https://github.com/Mullassery/QuillSift/actions/workflows/ci.yml/badge.svg)](https://github.com/Mullassery/QuillSift/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/quillsift.svg)](https://pypi.org/project/quillsift/)
+[![Python](https://img.shields.io/pypi/pyversions/quillsift.svg)](https://pypi.org/project/quillsift/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![Rust](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org/)
 
@@ -21,18 +21,22 @@ No browser. No paid scraping API. No vendor lock-in.
 ---
 
 > **Status: alpha.** Deterministic fetch/parse, the bounded graph executor, LLM
-> extraction, the `scrapeowl` CLI and PyPI Python bindings are implemented and
+> extraction, the `quillsift` CLI and PyPI Python bindings are implemented and
 > tested. The built-in crawler is a legacy compatibility fallback; new crawling
 > and JavaScript-rendering work belongs in [MudFish](https://github.com/Mullassery/MudFish).
 > Search providers, a REST API and an MCP server are on the roadmap. Nothing
 > here is a claim of production readiness.
 
-## Why ScrapeOwl
+> **Renamed:** QuillSift was previously published as ScrapeOwl. The former name
+> conflicted with an existing commercial scraping API; the `scrapeowl` package
+> is superseded by `quillsift`.
+
+## Why QuillSift
 
 Most scraping stacks force a trade-off: use a browser and pay the CPU/RAM bill,
 send every URL to a hosted API, or hand-roll HTML parsing and SSRF protection.
 
-ScrapeOwl takes a different path:
+QuillSift takes a different path:
 
 - **Deterministic first.** Fetch, parse and extract clean content with no LLM,
   no browser, no credentials and no per-request cost.
@@ -54,15 +58,15 @@ ScrapeOwl takes a different path:
 Python 3.9+:
 
 ```bash
-pip install scrapeowl
+pip install quillsift
 ```
 
 CLI from source (Rust stable):
 
 ```bash
-git clone https://github.com/Mullassery/ScrapeOwl.git
-cd ScrapeOwl
-cargo install --path crates/scrape-cli
+git clone https://github.com/Mullassery/QuillSift.git
+cd QuillSift
+cargo install --path crates/quillsift-cli
 ```
 
 ## Quick start
@@ -70,11 +74,11 @@ cargo install --path crates/scrape-cli
 ### Python
 
 ```python
-import scrapeowl
+import quillsift
 
 # Deterministic path: no LLM, no API key.
-markdown = scrapeowl.fetch("https://example.com")
-page = scrapeowl.fetch("https://example.com", format="json")
+markdown = quillsift.fetch("https://example.com")
+page = quillsift.fetch("https://example.com", format="json")
 
 print(markdown)
 print(page["metadata"]["title"])
@@ -86,15 +90,15 @@ print(page["links"][:3])
 
 ### Bounded crawl (legacy)
 
-ScrapeOwl's built-in crawler remains for API and CLI compatibility with bug
+QuillSift's built-in crawler remains for API and CLI compatibility with bug
 fixes only. For new crawling, politeness controls, resumable state or
 headless-Chrome rendering, use **MudFish** instead of adding crawl features
 here.
 
 ```python
-import scrapeowl
+import quillsift
 
-report = scrapeowl.crawl(
+report = quillsift.crawl(
     "https://example.com",
     max_depth=2,
     max_pages=25,
@@ -131,14 +135,14 @@ for page in result:
     print(page.status_code, page.url, page.title)
 ```
 
-Use MudFish to discover URLs and crawl safely, then use ScrapeOwl's `fetch` or
-`extract` for clean content and schema-validated structured extraction. ScrapeOwl
+Use MudFish to discover URLs and crawl safely, then use QuillSift's `fetch` or
+`extract` for clean content and schema-validated structured extraction. QuillSift
 itself still does not execute JavaScript.
 
 ### Structured extraction with a JSON Schema
 
 ```python
-import scrapeowl
+import quillsift
 
 schema = {
     "type": "object",
@@ -150,7 +154,7 @@ schema = {
     },
 }
 
-result = scrapeowl.extract(
+result = quillsift.extract(
     "https://example.com",
     schema,
     model="gpt-4o-mini",  # reads OPENAI_API_KEY
@@ -161,7 +165,7 @@ print(result["title"], result["topics"])
 Local models never need a paid key:
 
 ```python
-result = scrapeowl.extract(
+result = quillsift.extract(
     "https://example.com",
     schema,
     provider="ollama",
@@ -175,18 +179,18 @@ result = scrapeowl.extract(
 
 ```bash
 # Deterministic path: no LLM, no credentials.
-scrapeowl fetch https://example.com --format markdown
+quillsift fetch https://example.com --format markdown
 
 # Legacy bounded crawl: same-origin by default, robots.txt honored.
 # Prefer MudFish for new crawling and JS-rendered pages.
-scrapeowl crawl https://example.com --max-depth 2 --max-pages 25 --format json
+quillsift crawl https://example.com --max-depth 2 --max-pages 25 --format json
 
 # Schema-validated extraction. The key comes from the environment, never argv.
-OPENAI_API_KEY=... scrapeowl extract https://example.com \
+OPENAI_API_KEY=... quillsift extract https://example.com \
   --schema schema.json --model gpt-4o-mini
 
 # Local Ollama.
-scrapeowl extract http://localhost:8080/ \
+quillsift extract http://localhost:8080/ \
   --provider ollama --base-url http://localhost:11434 \
   --model llama3 --schema schema.json --allow-private
 ```
@@ -205,22 +209,22 @@ fixed; document content is fenced and cannot change it.
 | Graph execution | Typed DAG, bounded concurrency, deadlines, cancellation, retries, failure isolation |
 | LLM extraction | OpenAI-compatible `/chat/completions` and Ollama `/api/chat`; no provider lock-in |
 | Schema validation | JSON Schema validation with a bounded repair budget and explicit errors |
-| Interfaces | `scrapeowl` CLI and `scrapeowl` Python package (PyO3, GIL released) |
+| Interfaces | `quillsift` CLI and `quillsift` Python package (PyO3, GIL released) |
 | Foundations | Rust workspace, `#![forbid(unsafe_code)]` core crates, Apache-2.0 |
 
 ## How it works
 
 ```mermaid
 flowchart LR
-    URL[URL] --> Fetch["scrape-fetch<br/>SSRF guard · limits"]
-    Fetch --> HTML["scrape-html<br/>deterministic parse"]
+    URL[URL] --> Fetch["quillsift-fetch<br/>SSRF guard · limits"]
+    Fetch --> HTML["quillsift-html<br/>deterministic parse"]
     HTML --> Out["Markdown · text · links · images · metadata"]
     HTML --> Text["cleaned visible text"]
-    Crawl["scrape-crawl<br/>legacy bounded BFS"] -. discovers .-> Fetch
-    Text --> Extract["scrape-extract<br/>JSON Schema"]
-    Extract <--> LLM["scrape-llm<br/>OpenAI-compatible / Ollama"]
+    Crawl["quillsift-crawl<br/>legacy bounded BFS"] -. discovers .-> Fetch
+    Text --> Extract["quillsift-extract<br/>JSON Schema"]
+    Extract <--> LLM["quillsift-llm<br/>OpenAI-compatible / Ollama"]
     Extract --> JSON["validated JSON"]
-    Graph["scrape-graph<br/>bounded DAG"] -. orchestrates .-> Fetch
+    Graph["quillsift-graph<br/>bounded DAG"] -. orchestrates .-> Fetch
     Graph -. orchestrates .-> Extract
 ```
 
@@ -228,20 +232,20 @@ The workspace is intentionally split so the deterministic path stays small:
 
 | Crate | Responsibility |
 | --- | --- |
-| `scrape-core` | Types, errors, fetch/retry/crawl policies, SSRF address classes |
-| `scrape-fetch` | Guarded HTTP client with redirect, size and timeout limits |
-| `scrape-html` | Metadata, text, Markdown, links and images |
-| `scrape-crawl` | Legacy bounded breadth-first crawler kept for compatibility; MudFish owns new crawl/browser work |
-| `scrape-graph` | Bounded DAG executor with deadlines, cancellation and retries |
-| `scrape-llm` | OpenAI-compatible and Ollama chat adapters |
-| `scrape-extract` | Schema-validated extraction with bounded repair |
-| `scrape-cli` | The `scrapeowl` binary |
-| `scrape-python` | PyO3 bindings published as `scrapeowl` on PyPI |
+| `quillsift-core` | Types, errors, fetch/retry/crawl policies, SSRF address classes |
+| `quillsift-fetch` | Guarded HTTP client with redirect, size and timeout limits |
+| `quillsift-html` | Metadata, text, Markdown, links and images |
+| `quillsift-crawl` | Legacy bounded breadth-first crawler kept for compatibility; MudFish owns new crawl/browser work |
+| `quillsift-graph` | Bounded DAG executor with deadlines, cancellation and retries |
+| `quillsift-llm` | OpenAI-compatible and Ollama chat adapters |
+| `quillsift-extract` | Schema-validated extraction with bounded repair |
+| `quillsift-cli` | The `quillsift` binary |
+| `quillsift-python` | PyO3 bindings published as `quillsift` on PyPI |
 
 ## Security
 
 Scraping arbitrary URLs is an SSRF problem before it is a parsing problem.
-ScrapeOwl treats it that way:
+QuillSift treats it that way:
 
 - Private, loopback and link-local destinations are **denied by default**.
   `allow_private=True` / `--allow-private` is an explicit, documented opt-in for
@@ -257,9 +261,9 @@ ScrapeOwl treats it that way:
 The threat model and planned mitigations are documented in
 [`docs/SECURITY_THREAT_MODEL.md`](./docs/SECURITY_THREAT_MODEL.md).
 
-## When ScrapeOwl is the right fit
+## When QuillSift is the right fit
 
-| You need | ScrapeOwl today |
+| You need | QuillSift today |
 | --- | --- |
 | Clean content without a headless browser | Yes |
 | SSRF-safe fetching with hard limits | Yes |
@@ -267,7 +271,7 @@ The threat model and planned mitigations are documented in
 | A CLI or Python package over one engine | Yes |
 | Bounded, same-origin, robots-aware crawling | Legacy fallback; MudFish preferred |
 | Search-provider fan-out | Roadmap |
-| JavaScript-rendered pages | Use MudFish `render_js`; not built into ScrapeOwl |
+| JavaScript-rendered pages | Use MudFish `render_js`; not built into QuillSift |
 | REST API or MCP server | Roadmap |
 
 ## Status and roadmap
@@ -278,7 +282,7 @@ The threat model and planned mitigations are documented in
 - [x] **M3** — LLM extraction, CLI and Python wheel
 - [x] **M4a** — bounded crawl (legacy fallback; compatibility fixes only)
 - [ ] **M4b** — pluggable search providers
-- [ ] **M5** — superseded by MudFish; no browser engine planned in ScrapeOwl
+- [ ] **M5** — superseded by MudFish; no browser engine planned in QuillSift
 - [ ] **M6** — REST API and MCP server
 - [ ] **M7** — hardening and benchmarks
 - [ ] **M8** — documentation and release
@@ -300,7 +304,7 @@ cargo audit
 Python wheel smoke test:
 
 ```bash
-cd crates/scrape-python
+cd crates/quillsift-python
 maturin build --release --out dist
 pip install dist/*.whl
 python tests/smoke.py
@@ -311,18 +315,18 @@ python tests/smoke.py
 Issues and pull requests are welcome. Good starting points:
 
 - New deterministic extractors (tables, feeds, JSON-LD, readability heuristics)
-- More provider adapters behind the existing `scrape-llm` interface
+- More provider adapters behind the existing `quillsift-llm` interface
 - Fuzz/property tests for the HTML and URL parsers
 - Documentation, examples and benchmarks
 
-If ScrapeOwl saves you a browser or a paid API call, **star the repo** — it helps
+If QuillSift saves you a browser or a paid API call, **star the repo** — it helps
 other people find it.
 
 ## License and attribution
 
 Apache-2.0 — see [`LICENSE`](./LICENSE).
 
-ScrapeOwl is an independent, clean-room implementation inspired by the public API
+QuillSift is an independent, clean-room implementation inspired by the public API
 concepts of [ScrapeGraphAI](https://github.com/ScrapeGraphAI/Scrapegraph-ai). It
 is **not affiliated with, endorsed by, or derived from** the ScrapeGraphAI source
 code. Upstream attribution is recorded in [`NOTICE.md`](./NOTICE.md).

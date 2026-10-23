@@ -1,11 +1,11 @@
 # NOTICE
 
-ScrapeOwl is an independent, clean-room reimplementation. It contains no
+QuillSift is an independent, clean-room reimplementation. It contains no
 source code, prompts, or assets copied from any other project.
 
 ## Attribution
 
-The design and public API concepts of ScrapeOwl were informed by the open
+The design and public API concepts of QuillSift were informed by the open
 source project **ScrapeGraphAI**:
 
 - Project: ScrapeGraphAI
@@ -41,7 +41,7 @@ SOFTWARE.
 
 ## No affiliation
 
-ScrapeOwl is not affiliated with, endorsed by, sponsored by, or connected to
+QuillSift is not affiliated with, endorsed by, sponsored by, or connected to
 the ScrapeGraphAI project, its authors, or the ScrapeGraphAI managed API. The
 ScrapeGraphAI managed API and SDKs are separate products and were not inspected
 or reused.

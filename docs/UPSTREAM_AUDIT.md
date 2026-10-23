@@ -11,7 +11,7 @@
   modified. All line references point into the audited clone.
 
 > This document records observed upstream behavior. It is not a claim of
-> feature parity by ScrapeOwl. Uncertainties are listed explicitly in
+> feature parity by QuillSift. Uncertainties are listed explicitly in
 > [§10](#10-explicit-uncertainties).
 
 ---
@@ -323,9 +323,12 @@ reuse decision (clean-room reimplementation; no upstream code copied).
   assumed proprietary; nothing is reused from it.
 - **Dependency licenses** were not machine-verified in this phase (no lockfile
   license tool was run). The Rust side defers all adoption to a verified audit.
-- **Trademark/naming:** "ScrapeOwl" is the working project name. A trademark
-  search was **not** performed in this phase; this is flagged as a release
-  blocker in [RUST_ARCHITECTURE.md](./RUST_ARCHITECTURE.md) and
+- **Trademark/naming:** The project was renamed from ScrapeOwl to QuillSift
+  after preliminary checks found the former name conflicts with an existing
+  commercial scraping API. QuillSift package, repository and domain candidates
+  were checked for availability on 2026-10-23; formal trademark clearance has
+  **not** been performed. This remains a release blocker in
+  [RUST_ARCHITECTURE.md](./RUST_ARCHITECTURE.md) and
   [../README.md](../README.md).
 - **Security patterns** listed in §7.5 are from static inspection only; they are
   not the result of an exploit test.
@@ -334,7 +337,7 @@ reuse decision (clean-room reimplementation; no upstream code copied).
 
 ## 11. Clean-room position
 
-ScrapeOwl is an **independent, clean-room Rust reimplementation** of the
+QuillSift is an **independent, clean-room Rust reimplementation** of the
 *concepts* found in ScrapeGraphAI's public API surface (typed graph pipelines,
 prompt-driven extraction, multi-page/search/depth graphs). It does **not** copy
 upstream source, prompts, or assets, and it is **not affiliated with or

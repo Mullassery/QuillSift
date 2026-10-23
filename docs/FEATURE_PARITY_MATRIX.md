@@ -4,18 +4,18 @@ Legend
 
 - **Priority:** `P0` required for the deterministic core + first usable release;
   `P1` next; `P2` later/optional; `OOS` intentionally out of scope.
-- **Parity goal:** the behavior ScrapeOwl aims to provide, expressed
+- **Parity goal:** the behavior QuillSift aims to provide, expressed
   independently. It is a *goal*, not verified parity.
 - Upstream reference column cites the audited v2.3.1 behavior
   (see [UPSTREAM_AUDIT.md](./UPSTREAM_AUDIT.md)).
 
-> Rule: nothing in this table is "done" until a ScrapeOwl test exercises it and
+> Rule: nothing in this table is "done" until a QuillSift test exercises it and
 > we report the real result. No unimplemented row may be described as
 > equivalent.
 
 ## A. Fetching & input
 
-| Feature | Upstream behavior | ScrapeOwl goal | Priority | Notes / risk |
+| Feature | Upstream behavior | QuillSift goal | Priority | Notes / risk |
 |---|---|---|---|---|
 | HTTP fetch (URL) | Playwright/Chromium by default, `requests` if `use_soup` | Async `reqwest` fetch, no JS by default | P0 | Deterministic core must not require a browser |
 | Local HTML file/dir | `local_dir` passthrough | Read local file(s) | P0 | |
@@ -26,17 +26,17 @@ Legend
 | Timeouts (connect/read) | Partial; advisory in generation | Hard connect + total deadlines | P0 | |
 | Redirects | Browser/requests default | Bounded redirects with SSRF re-check | P0 | Upstream has no SSRF/redirect policy |
 | Response size / decompression caps | None observed | Byte + decompressed caps | P0 | |
-| robots.txt | Only `RobotsNode` | Robots policy enforced by default in the legacy crawler | P1 | Implemented in `scrape-crawl` (M4a); MudFish is the supported crawler |
-| Crawl delay | None | Configurable polite delay | P1 | Legacy per-origin delay in `scrape-crawl`; use MudFish for new crawls |
-| Offline HTML→Markdown | `html2text` via `convert_to_md` | `scrape-html` markdown conversion | P0 | |
+| robots.txt | Only `RobotsNode` | Robots policy enforced by default in the legacy crawler | P1 | Implemented in `quillsift-crawl` (M4a); MudFish is the supported crawler |
+| Crawl delay | None | Configurable polite delay | P1 | Legacy per-origin delay in `quillsift-crawl`; use MudFish for new crawls |
+| Offline HTML→Markdown | `html2text` via `convert_to_md` | `quillsift-html` markdown conversion | P0 | |
 | Main-content extraction | `Html2TextTransformer` | Deterministic readability extraction | P0 | |
 | Links / images extraction | `ParseNode` regex | DOM-based link/image extraction | P0 | |
-| Title/description/metadata | Not first-class | Deterministic metadata extractor | P0 | ScrapeOwl differentiator |
+| Title/description/metadata | Not first-class | Deterministic metadata extractor | P0 | QuillSift differentiator |
 | Canonical URL normalization | Basic `urljoin` | RFC-3986 canonicalization + dedup key | P0 | |
 
 ## B. Graph / pipeline engine
 
-| Feature | Upstream behavior | ScrapeOwl goal | Priority | Notes |
+| Feature | Upstream behavior | QuillSift goal | Priority | Notes |
 |---|---|---|---|---|
 | Typed node DAG | `BaseGraph` with state dict + boolean input exprs | Typed nodes with explicit typed state, checked at build time | P0 | Upstream uses dynamic dict state |
 | Conditional branching | `ConditionalNode` + `simpleeval` on whole state | Typed conditional edges, no expression eval of state | P0 | Avoid simpleeval-with-state risk |
@@ -51,7 +51,7 @@ Legend
 
 ## C. Graphs (pipeline presets)
 
-| Upstream graph | Behavior | ScrapeOwl goal | Priority |
+| Upstream graph | Behavior | QuillSift goal | Priority |
 |---|---|---|---|
 | `SmartScraperGraph` | fetch→parse→(reasoning)→generate, optional reattempt | `scrape` pipeline: fetch→extract→LLM structured output | P0 |
 | `SmartScraperLiteGraph` | fetch→parse only (chunks) | Deterministic text/chunk output mode | P0 |
@@ -78,7 +78,7 @@ Legend
 
 ## D. LLM / providers
 
-| Feature | Upstream behavior | ScrapeOwl goal | Priority | Notes |
+| Feature | Upstream behavior | QuillSift goal | Priority | Notes |
 |---|---|---|---|---|
 | OpenAI-compatible chat/completions | via LangChain | Native provider adapter | P0 | |
 | Ollama | via LangChain | Native/adapter | P0 | |
@@ -96,35 +96,35 @@ Legend
 
 ## E. Browser / JS rendering
 
-| Feature | Upstream behavior | ScrapeOwl goal | Priority | Notes |
+| Feature | Upstream behavior | QuillSift goal | Priority | Notes |
 |---|---|---|---|---|
-| JS rendering | Playwright (+ optional Selenium) | Use MudFish `render_js`; no browser in ScrapeOwl | OOS | Delegated, not required for core |
+| JS rendering | Playwright (+ optional Selenium) | Use MudFish `render_js`; no browser in QuillSift | OOS | Delegated, not required for core |
 | Stealth / anti-bot | `undetected-playwright` | **Not implemented** | OOS | Explicitly excluded |
 | Downloads / file access | Not restricted | Disabled by default | P0 (policy) | |
-| SSRF for browser nav/iframes/subresources | Not addressed | MudFish owns browser SSRF handling | OOS | ScrapeOwl has no browser path |
+| SSRF for browser nav/iframes/subresources | Not addressed | MudFish owns browser SSRF handling | OOS | QuillSift has no browser path |
 | TLS verification | Disabled on some paths | Always verified on HTTP fetches | P0 | |
-| Screenshots | `FetchScreenNode` | Not planned in ScrapeOwl | OOS | Use MudFish/browser tooling if needed |
+| Screenshots | `FetchScreenNode` | Not planned in QuillSift | OOS | Use MudFish/browser tooling if needed |
 
 ## F. Crawling
 
-| Feature | Upstream behavior | ScrapeOwl goal | Priority | Notes / risk |
+| Feature | Upstream behavior | QuillSift goal | Priority | Notes / risk |
 |---|---|---|---|---|
-| Multi-page crawl with depth | `FetchNodeLevelK` (BFS) | Legacy bounded crawler; MudFish preferred | P1 | Implemented in `scrape-crawl` (M4a), fixes only |
+| Multi-page crawl with depth | `FetchNodeLevelK` (BFS) | Legacy bounded crawler; MudFish preferred | P1 | Implemented in `quillsift-crawl` (M4a), fixes only |
 | Same-origin restriction | `only_inside_links` option | Legacy default same-origin, configurable | P1 | Redirects checked; MudFish for new crawls |
 | URL dedup / canonicalization | Membership scans | Canonical key set | P0 | Fragment-normalized URL set |
-| Content dedup | None | Not planned in ScrapeOwl | OOS | Crawl processing is delegated to MudFish |
+| Content dedup | None | Not planned in QuillSift | OOS | Crawl processing is delegated to MudFish |
 | Robots + crawl delay | Not enforced | Legacy enforcement with opt-out | P1 | MudFish is the supported politeness layer |
-| Resumable / incremental crawl | None | MudFish SQLite frontier | OOS | Not planned in ScrapeOwl |
+| Resumable / incremental crawl | None | MudFish SQLite frontier | OOS | Not planned in QuillSift |
 
 ## G. Interfaces
 
-| Feature | Upstream behavior | ScrapeOwl goal | Priority |
+| Feature | Upstream behavior | QuillSift goal | Priority |
 |---|---|---|---|
-| CLI | None first-class | `scrape-cli` (url/prompt/schema/output) | P0 |
-| REST API | None in OSS | `scrape-api` (scrape/extract) + health/ready | P1 |
+| CLI | None first-class | `quillsift-cli` (url/prompt/schema/output) | P0 |
+| REST API | None in OSS | `quillsift-api` (scrape/extract) + health/ready | P1 |
 | Auth for non-local | N/A | API-key auth, per-user quotas/rate limits | P1 |
 | Request IDs + structured errors | N/A | Typed error envelope + request id | P1 |
-| MCP server | Separate `scrapegraph-mcp` repo | `scrape-mcp` with validated args + output cap | P1 |
+| MCP server | Separate `scrapegraph-mcp` repo | `quillsift-mcp` with validated args + output cap | P1 |
 | Python bindings | N/A (upstream *is* Python) | Optional PyO3 after API stabilizes | P2 |
 | Local/self-hosted by default | Yes | Yes — no paid credentials for deterministic scraping | P0 |
 

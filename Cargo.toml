@@ -1,32 +1,32 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/scrape-core",
-    "crates/scrape-html",
-    "crates/scrape-fetch",
-    "crates/scrape-graph",
-    "crates/scrape-crawl",
-    "crates/scrape-llm",
-    "crates/scrape-extract",
-    "crates/scrape-cli",
-    "crates/scrape-python",
+    "crates/quillsift-core",
+    "crates/quillsift-html",
+    "crates/quillsift-fetch",
+    "crates/quillsift-graph",
+    "crates/quillsift-crawl",
+    "crates/quillsift-llm",
+    "crates/quillsift-extract",
+    "crates/quillsift-cli",
+    "crates/quillsift-python",
 ]
 
 [workspace.package]
-version = "0.2.2"
+version = "0.3.0"
 edition = "2021"
 license = "Apache-2.0"
-repository = "https://github.com/Mullassery/ScrapeOwl"
-authors = ["ScrapeOwl contributors"]
+repository = "https://github.com/Mullassery/QuillSift"
+authors = ["QuillSift contributors"]
 
 [workspace.dependencies]
-scrape-core = { path = "crates/scrape-core", version = "0.2.2" }
-scrape-graph = { path = "crates/scrape-graph", version = "0.2.2" }
-scrape-fetch = { path = "crates/scrape-fetch", version = "0.2.2" }
-scrape-html = { path = "crates/scrape-html", version = "0.2.2" }
-scrape-crawl = { path = "crates/scrape-crawl", version = "0.2.2" }
-scrape-llm = { path = "crates/scrape-llm", version = "0.2.2" }
-scrape-extract = { path = "crates/scrape-extract", version = "0.2.2" }
+quillsift-core = { path = "crates/quillsift-core", version = "0.3.0" }
+quillsift-graph = { path = "crates/quillsift-graph", version = "0.3.0" }
+quillsift-fetch = { path = "crates/quillsift-fetch", version = "0.3.0" }
+quillsift-html = { path = "crates/quillsift-html", version = "0.3.0" }
+quillsift-crawl = { path = "crates/quillsift-crawl", version = "0.3.0" }
+quillsift-llm = { path = "crates/quillsift-llm", version = "0.3.0" }
+quillsift-extract = { path = "crates/quillsift-extract", version = "0.3.0" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"

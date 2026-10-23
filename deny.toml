@@ -1,4 +1,4 @@
-# cargo-deny configuration for ScrapeOwl.
+# cargo-deny configuration for QuillSift.
 # Enforced in CI. See docs/DEPENDENCY_AND_LICENSE_AUDIT.md for the adoption gate.
 
 [graph]

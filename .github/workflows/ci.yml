@@ -57,11 +57,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: pip install "maturin>=1.14,<2"
       - run: maturin build --release --out dist
-        working-directory: crates/scrape-python
+        working-directory: crates/quillsift-python
       - run: pip install dist/*.whl
-        working-directory: crates/scrape-python
+        working-directory: crates/quillsift-python
       - run: python tests/smoke.py
-        working-directory: crates/scrape-python
+        working-directory: crates/quillsift-python
 
   deny:
     name: cargo-deny

@@ -1,4 +1,4 @@
-# Security Threat Model — ScrapeOwl
+# Security Threat Model — QuillSift
 
 - **Date:** 2026-10-20
 - **Status:** initial model (Phase 0). Controls here are **requirements**, not
@@ -7,7 +7,7 @@
 
 ## 1. Scope & assets
 
-ScrapeOwl is a self-hosted scraping engine. Assets to protect:
+QuillSift is a self-hosted scraping engine. Assets to protect:
 
 - **A1** Host the process runs on (filesystem, network position, credentials).
 - **A2** User/operator secrets: LLM API keys, cookies, storage state, proxy
@@ -59,7 +59,7 @@ ScrapeOwl is a self-hosted scraping engine. Assets to protect:
 ### T2 — Arbitrary code execution — **Critical (if implemented)**
 - *Upstream:* `GenerateCodeNode` `exec()`s LLM-generated Python with full
   builtins; prompt injection in a page could reach it.
-- *ScrapeOwl decision:* **do not implement** LLM code generation/execution
+- *QuillSift decision:* **do not implement** LLM code generation/execution
   (`CodeGeneratorGraph`/`ScriptCreatorGraph` are out of scope). No `eval`,
   `exec`, dynamic module loading, or process spawning of scraped/LLM content.
 - *Verification:* code review + a test asserting no such capability is exposed.
@@ -101,7 +101,7 @@ ScrapeOwl is a self-hosted scraping engine. Assets to protect:
 - *Vector:* malformed/hostile HTML, deeply nested markup, huge attribute values.
 - *Required controls:* parsing must not panic (no `unwrap` on untrusted input);
   bounded recursion/stack use; fuzzing.
-- *Verification:* fuzz targets for `scrape-html` and URL/canonicalization;
+- *Verification:* fuzz targets for `quillsift-html` and URL/canonicalization;
   malformed fixtures.
 
 ### T8 — Untrusted LLM output — **Medium**
@@ -154,7 +154,7 @@ ScrapeOwl is a self-hosted scraping engine. Assets to protect:
 | Graph cancellation/deadlines/retries (T5/T6 support) | M2 |
 | Injection, secrets, LLM output (T3,T4,T8,T10) | M3 |
 | Crawl compliance (T12) | M4 (legacy); MudFish for new crawls |
-| Browser SSRF/TLS (T1,T5) | MudFish `render_js`, not ScrapeOwl |
+| Browser SSRF/TLS (T1,T5) | MudFish `render_js`, not QuillSift |
 | API/MCP auth, quotas, caps (T9,T11) | M6 |
 | Fuzz sweep + audit (T7 and regression) | M7 |
 

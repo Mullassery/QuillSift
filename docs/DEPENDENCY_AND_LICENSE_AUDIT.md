@@ -6,14 +6,14 @@
 
 ## 1. Headline decision
 
-ScrapeOwl is a **clean-room reimplementation**. **No upstream Python source,
+QuillSift is a **clean-room reimplementation**. **No upstream Python source,
 prompts, or assets are copied.** Therefore upstream's dependency licenses do
-**not** propagate to ScrapeOwl by dependency, but we still audit them to
+**not** propagate to QuillSift by dependency, but we still audit them to
 understand attribution obligations for faithfully reproduced *public API
 concepts* and to document that no copyleft code was imported.
 
 - Upstream project license: **MIT** (`LICENSE`, "Copyright 2024 Scrapgraph-ai
-  team"). MIT is permissive and compatible with a permissive ScrapeOwl license.
+  team"). MIT is permissive and compatible with a permissive QuillSift license.
 - The managed service (`scrapegraph-py`) and its internals are **not** inspected
   or reused; it is a paid, separate product.
 - Attribution for the upstream project (name, link, MIT notice) is recorded in
@@ -63,8 +63,8 @@ copyleft), `matplotlib` (PSF-like), `ipywidgets` (BSD-3), `pillow` (MIT-CMU).
 **Findings**
 
 - `html2text` and `surya-ocr` are the notable **copyleft** candidates. Because
-  ScrapeOwl copies no code, this does not bind us; it only reinforces the
-  clean-room approach. ScrapeOwl's markdown conversion will use a
+  QuillSift copies no code, this does not bind us; it only reinforces the
+  clean-room approach. QuillSift's markdown conversion will use a
   permissively-licensed Rust crate, not a port of `html2text`.
 - `undetected-playwright` (evasion) is explicitly **not adopted** (see
   [SECURITY_THREAT_MODEL.md](./SECURITY_THREAT_MODEL.md) and the parity matrix
@@ -146,13 +146,13 @@ bundled CA roots, not code under a copyleft term. It is allowlisted explicitly i
 
 No candidate is adopted until it is verified and recorded here.
 
-## 5. ScrapeOwl license decision
+## 5. QuillSift license decision
 
 - **Decided: Apache-2.0.** Confirmed by the maintainer on 2026-10-20. Chosen for
   its explicit patent grant; compatible with the permissive upstream MIT code we
   do not copy. See [`../LICENSE`](../LICENSE).
 - [`../NOTICE.md`](../NOTICE.md) credits ScrapeGraphAI (MIT) for the concepts
-  and public API names it inspired, and states clearly that ScrapeOwl is
+  and public API names it inspired, and states clearly that QuillSift is
   independent and unaffiliated.
 
 ## 6. Outstanding work

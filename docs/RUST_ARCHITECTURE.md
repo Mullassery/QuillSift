@@ -1,8 +1,8 @@
-# ScrapeOwl — Rust Architecture (proposed)
+# QuillSift — Rust Architecture (proposed)
 
-Status: **living document**. M0 (`scrape-core`), M1 (`scrape-fetch`,
-`scrape-html`), M2 (`scrape-graph`), M3 (`scrape-llm`, `scrape-extract`,
-`scrape-cli`) and M4a (`scrape-crawl`, legacy compatibility fallback) are
+Status: **living document**. M0 (`quillsift-core`), M1 (`quillsift-fetch`,
+`quillsift-html`), M2 (`quillsift-graph`), M3 (`quillsift-llm`, `quillsift-extract`,
+`quillsift-cli`) and M4a (`quillsift-crawl`, legacy compatibility fallback) are
 implemented; later milestones are still proposals. Crawling and browser
 rendering beyond that fallback are delegated to MudFish. This document states
 intended boundaries, dependencies and acceptance criteria.
@@ -26,36 +26,36 @@ Dependency names are *candidates* until recorded as adopted in
 ## 2. Workspace layout
 
 ```
-ScrapeOwl/
+QuillSift/
 ├── Cargo.toml                # workspace
 ├── crates/
-│   ├── scrape-core/          # domain types, errors, config, traits
-│   ├── scrape-fetch/         # HTTP, timeouts, redirects, SSRF, limits
-│   ├── scrape-html/          # parse, metadata, links, content, markdown
-│   ├── scrape-llm/           # provider abstraction + structured generation
-│   ├── scrape-graph/         # typed DAG + scheduler/executor
-│   ├── scrape-extract/       # schema-driven extraction + validation
-│   ├── scrape-crawl/         # legacy bounded crawler + dedup (compatibility)
-│   ├── scrape-api/           # REST service + middleware (binary)
-│   ├── scrape-cli/           # CLI (binary)
-│   ├── scrape-mcp/           # MCP server (binary)
-│   └── scrape-python/        # PyO3 bindings (PyPI package `scrapeowl`)
+│   ├── quillsift-core/          # domain types, errors, config, traits
+│   ├── quillsift-fetch/         # HTTP, timeouts, redirects, SSRF, limits
+│   ├── quillsift-html/          # parse, metadata, links, content, markdown
+│   ├── quillsift-llm/           # provider abstraction + structured generation
+│   ├── quillsift-graph/         # typed DAG + scheduler/executor
+│   ├── quillsift-extract/       # schema-driven extraction + validation
+│   ├── quillsift-crawl/         # legacy bounded crawler + dedup (compatibility)
+│   ├── quillsift-api/           # REST service + middleware (binary)
+│   ├── quillsift-cli/           # CLI (binary)
+│   ├── quillsift-mcp/           # MCP server (binary)
+│   └── quillsift-python/        # PyO3 bindings (PyPI package `quillsift`)
 ├── docs/
 └── tests/                    # cross-crate integration (local fixture server)
 ```
 
 Crate boundaries (rationale):
 
-- `scrape-core` has no network/async-heavy deps; everything else depends on it.
-- `scrape-fetch` owns all HTTP and the SSRF/limit policy; nothing else opens
-  sockets except `scrape-llm`, which reuses the same address-policy types from
-  `scrape-core`.
-- `scrape-html` is pure (bytes/str in → typed structure out); easily fuzzed.
-- `scrape-graph` depends on `scrape-core` only and drives nodes via traits, so
+- `quillsift-core` has no network/async-heavy deps; everything else depends on it.
+- `quillsift-fetch` owns all HTTP and the SSRF/limit policy; nothing else opens
+  sockets except `quillsift-llm`, which reuses the same address-policy types from
+  `quillsift-core`.
+- `quillsift-html` is pure (bytes/str in → typed structure out); easily fuzzed.
+- `quillsift-graph` depends on `quillsift-core` only and drives nodes via traits, so
   pipelines are testable with mock nodes.
-- Browser rendering is not implemented in ScrapeOwl; use MudFish's opt-in
+- Browser rendering is not implemented in QuillSift; use MudFish's opt-in
   `render_js` path instead of adding a browser dependency here.
-- Binaries (`scrape-api`, `scrape-cli`, `scrape-mcp`) are thin; logic lives in
+- Binaries (`quillsift-api`, `quillsift-cli`, `quillsift-mcp`) are thin; logic lives in
   libraries.
 
 We deliberately avoid splitting further (no per-provider crates in the first
@@ -95,7 +95,7 @@ Dev/CI tooling: `cargo fmt`, `clippy` (deny warnings), `cargo test`,
 ## 4. Core types (sketch)
 
 ```rust
-// scrape-core
+// quillsift-core
 pub struct FetchPolicy {
     pub max_bytes: u64,
     pub max_decompressed_bytes: u64,
@@ -125,7 +125,7 @@ pub struct Extracted { pub text: String, pub markdown: String, pub links: Vec<Ur
 Graph nodes implement a trait with typed input/output:
 
 ```rust
-// scrape-graph
+// quillsift-graph
 #[async_trait]
 pub trait Node<I, O>: Send + Sync {
     fn name(&self) -> &'static str;
@@ -162,7 +162,7 @@ Before adding any dependency:
 - **Prompt injection:** page content is delimited untrusted data; system policy
   is fixed; tool/action permissions are explicit and bounded.
 
-## 7. Execution engine (scrape-graph)
+## 7. Execution engine (quillsift-graph)
 
 - Explicit DAG: nodes + typed edges + entry set.
 - Dependency-aware scheduling: independent nodes run concurrently under a
@@ -185,7 +185,7 @@ Before adding any dependency:
   HTML).
 - Mocked LLM provider for generation tests; deterministic no-LLM tests never
   touch the network.
-- Fuzz targets for `scrape-html` parsing and URL/canonicalization.
+- Fuzz targets for `quillsift-html` parsing and URL/canonicalization.
 - Reproducible benchmarks with published inputs/method/hardware.
 
 ## 9. Milestones & acceptance criteria
@@ -194,7 +194,7 @@ Each milestone is a separate PR-sized change. Tests must pass and results
 reported before the next milestone.
 
 ### M0 — Workspace skeleton (Phase 1) — **done**
-- Scope: workspace + `scrape-core` types/errors/config; CI (fmt, clippy, test,
+- Scope: workspace + `quillsift-core` types/errors/config; CI (fmt, clippy, test,
   deny, audit); README/ARCHITECTURE stubs.
 - Acceptance: `cargo test` green; `cargo clippy -- -D warnings` clean;
   `cargo deny check` clean.
@@ -202,7 +202,7 @@ reported before the next milestone.
   `cargo audit` exit 0. License set to Apache-2.0.
 
 ### M1 — Deterministic fetch + parse (Phase 2) — **done (core), fuzz pending**
-- Scope: `scrape-fetch` (reqwest + SSRF + limits), `scrape-html` (parse,
+- Scope: `quillsift-fetch` (reqwest + SSRF + limits), `quillsift-html` (parse,
   metadata, links, images, markdown, canonicalization), local inputs, typed
   errors, `tracing`.
 - Acceptance: fixture-server integration tests (success, timeout, redirect,
@@ -216,7 +216,7 @@ reported before the next milestone.
   blocker for M2).
 
 ### M2 — Typed graph engine (Phase 4 subset) — **done**
-- Scope: `scrape-graph` DAG, scheduler, cancellation/deadlines, retry policy,
+- Scope: `quillsift-graph` DAG, scheduler, cancellation/deadlines, retry policy,
   per-node tracing, mock nodes.
 - Acceptance: concurrency-limit, cancellation, deadline and retry tests with a
   deterministic scheduler test harness.
@@ -228,8 +228,8 @@ reported before the next milestone.
   retry with bounded deterministic jitter, and per-node `tracing` spans.
 
 ### M3 — LLM extraction (Phase 3) + CLI (Phase 6 subset) — **done**
-- Scope: `scrape-llm` (OpenAI-compatible + Ollama adapters), `scrape-extract`
-  (schemars→jsonschema validation, bounded repair), `scrape-cli`.
+- Scope: `quillsift-llm` (OpenAI-compatible + Ollama adapters), `quillsift-extract`
+  (schemars→jsonschema validation, bounded repair), `quillsift-cli`.
 - Acceptance: mocked-provider tests for structured output, retries, rate limit,
   cancellation; injection tests proving page text cannot change policy;
   schema-validation tests; deterministic no-LLM path tested without a provider.
@@ -240,7 +240,7 @@ reported before the next milestone.
   injected-document containment, truncation, schemars generation and config
   rejection. The CLI exposes `fetch` (markdown/text/json, no LLM) and `extract`
   (provider, base URL, model, schema, env-based API key, `--allow-private`).
-  Python bindings (`scrape-python`, PyPI package `scrapeowl`) expose blocking
+  Python bindings (`quillsift-python`, PyPI package `quillsift`) expose blocking
   `fetch`/`extract` functions that release the GIL and reuse the same guarded
   fetcher and extractor; a wheel smoke test runs against a local HTTP server.
   Not covered: live provider calls (no credentials in CI) and token counting.
@@ -248,8 +248,8 @@ reported before the next milestone.
 ### M4a — Bounded crawl (Phase 5 subset) — **done, legacy**
 - Status: kept for CLI/Python compatibility with bug fixes only. MudFish is the
   supported crawler and browser-rendering path; do not add crawl features to
-  ScrapeOwl.
-- Scope: `scrape-crawl` (bounded BFS, same-origin default, robots enforced by
+  QuillSift.
+- Scope: `quillsift-crawl` (bounded BFS, same-origin default, robots enforced by
   default with opt-out, URL dedup, crawl delay, concurrency), CLI `crawl` and
   Python `crawl`.
 - Acceptance: crawl-depth/page-limit/same-origin/dedup/robots tests against the
@@ -273,14 +273,14 @@ reported before the next milestone.
   third-party search engine would be fragile and may violate its terms.
 
 ### M5 — Browser adapter — **superseded**
-- ScrapeOwl does not implement browser rendering. Use MudFish's opt-in
+- QuillSift does not implement browser rendering. Use MudFish's opt-in
   `render_js` path, which owns headless-Chrome lifecycle, rendering and its
   documented SSRF caveat.
-- ScrapeOwl remains browser-free so the deterministic path stays small.
+- QuillSift remains browser-free so the deterministic path stays small.
 
 ### M6 — API + MCP (Phase 6)
-- Scope: `scrape-api` (scrape/extract, health/ready, request ids, typed errors,
-  API-key auth, quotas/rate limits, max job duration); `scrape-mcp` (validated
+- Scope: `quillsift-api` (scrape/extract, health/ready, request ids, typed errors,
+  API-key auth, quotas/rate limits, max job duration); `quillsift-mcp` (validated
   args, timeouts, output caps). Crawl remains a legacy CLI/Python fallback, not
   part of the new API surface.
 - Acceptance: auth failure, quota, rate-limit, job-duration, and error-envelope
@@ -297,10 +297,13 @@ reported before the next milestone.
   docs set, `NOTICE.md`, license decisions, naming/trademark check.
 - Acceptance: docs review; working quick start executed on a clean checkout.
 
-## 10. Open decisions to confirm before M0
+## 10. Open decisions
 
-1. **Project name & trademark check** for "ScrapeOwl" (release blocker).
-2. ~~License~~ — **decided: Apache-2.0** (see `LICENSE`).
-3. **MSRV** and whether `async-trait` is needed or native async traits suffice.
-4. Exact **MCP SDK** choice (`rmcp` vs alternative) after maturity check.
-5. Whether `scrape-python` (PyO3) is in scope for the first year.
+1. **QuillSift trademark clearance** (release blocker). Preliminary package,
+   repository and domain availability checks were run on 2026-10-23; formal
+   trademark clearance has not been performed.
+2. **MSRV** and whether `async-trait` is needed or native async traits suffice.
+3. Exact **MCP SDK** choice (`rmcp` vs alternative) after maturity check.
+
+Resolved: license is Apache-2.0 (see `LICENSE`); PyO3 Python bindings are in
+scope and implemented in `quillsift-python`.

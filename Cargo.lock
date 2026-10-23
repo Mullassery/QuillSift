@@ -1531,6 +1531,130 @@ dependencies = [
 ]
 
 [[package]]
+name = "quillsift-cli"
+version = "0.3.0"
+dependencies = [
+ "clap",
+ "http",
+ "quillsift-core",
+ "quillsift-crawl",
+ "quillsift-extract",
+ "quillsift-fetch",
+ "quillsift-html",
+ "quillsift-llm",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "url",
+]
+
+[[package]]
+name = "quillsift-core"
+version = "0.3.0"
+dependencies = [
+ "http",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "url",
+]
+
+[[package]]
+name = "quillsift-crawl"
+version = "0.3.0"
+dependencies = [
+ "futures-util",
+ "quillsift-core",
+ "quillsift-fetch",
+ "quillsift-html",
+ "serde",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "quillsift-extract"
+version = "0.3.0"
+dependencies = [
+ "async-trait",
+ "jsonschema",
+ "quillsift-core",
+ "quillsift-llm",
+ "schemars",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "quillsift-fetch"
+version = "0.3.0"
+dependencies = [
+ "flate2",
+ "futures-util",
+ "quillsift-core",
+ "reqwest 0.12.28",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "quillsift-graph"
+version = "0.3.0"
+dependencies = [
+ "async-trait",
+ "quillsift-core",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "quillsift-html"
+version = "0.3.0"
+dependencies = [
+ "ego-tree",
+ "htmd",
+ "quillsift-core",
+ "scraper",
+ "url",
+]
+
+[[package]]
+name = "quillsift-llm"
+version = "0.3.0"
+dependencies = [
+ "async-trait",
+ "quillsift-core",
+ "quillsift-fetch",
+ "serde_json",
+ "tokio",
+ "url",
+]
+
+[[package]]
+name = "quillsift-python"
+version = "0.3.0"
+dependencies = [
+ "http",
+ "pyo3",
+ "quillsift-core",
+ "quillsift-crawl",
+ "quillsift-extract",
+ "quillsift-fetch",
+ "quillsift-html",
+ "quillsift-llm",
+ "serde_json",
+ "tokio",
+ "url",
+]
+
+[[package]]
 name = "quinn"
 version = "0.11.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1954,130 +2078,6 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
-
-[[package]]
-name = "scrape-cli"
-version = "0.2.2"
-dependencies = [
- "clap",
- "http",
- "scrape-core",
- "scrape-crawl",
- "scrape-extract",
- "scrape-fetch",
- "scrape-html",
- "scrape-llm",
- "serde_json",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "url",
-]
-
-[[package]]
-name = "scrape-core"
-version = "0.2.2"
-dependencies = [
- "http",
- "serde",
- "serde_json",
- "thiserror",
- "url",
-]
-
-[[package]]
-name = "scrape-crawl"
-version = "0.2.2"
-dependencies = [
- "futures-util",
- "scrape-core",
- "scrape-fetch",
- "scrape-html",
- "serde",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "scrape-extract"
-version = "0.2.2"
-dependencies = [
- "async-trait",
- "jsonschema",
- "schemars",
- "scrape-core",
- "scrape-llm",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "scrape-fetch"
-version = "0.2.2"
-dependencies = [
- "flate2",
- "futures-util",
- "reqwest 0.12.28",
- "scrape-core",
- "serde_json",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "scrape-graph"
-version = "0.2.2"
-dependencies = [
- "async-trait",
- "scrape-core",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-util",
- "tracing",
-]
-
-[[package]]
-name = "scrape-html"
-version = "0.2.2"
-dependencies = [
- "ego-tree",
- "htmd",
- "scrape-core",
- "scraper",
- "url",
-]
-
-[[package]]
-name = "scrape-llm"
-version = "0.2.2"
-dependencies = [
- "async-trait",
- "scrape-core",
- "scrape-fetch",
- "serde_json",
- "tokio",
- "url",
-]
-
-[[package]]
-name = "scrape-python"
-version = "0.2.2"
-dependencies = [
- "http",
- "pyo3",
- "scrape-core",
- "scrape-crawl",
- "scrape-extract",
- "scrape-fetch",
- "scrape-html",
- "scrape-llm",
- "serde_json",
- "tokio",
- "url",
-]
 
 [[package]]
 name = "scraper"
