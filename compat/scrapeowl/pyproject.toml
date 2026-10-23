@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scrapeowl"
+version = "0.2.3"
+description = "Deprecated compatibility shim; use quillsift instead"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+authors = [{ name = "QuillSift contributors" }]
+dependencies = ["quillsift==0.3.0"]
+classifiers = [
+  "Development Status :: 7 - Inactive",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/Mullassery/QuillSift"
+Repository = "https://github.com/Mullassery/QuillSift"
+Issues = "https://github.com/Mullassery/QuillSift/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -29,7 +29,8 @@ No browser. No paid scraping API. No vendor lock-in.
 
 > **Renamed:** QuillSift was previously published as ScrapeOwl. The former name
 > conflicted with an existing commercial scraping API; the `scrapeowl` package
-> is superseded by `quillsift`.
+> is superseded by `quillsift`. `scrapeowl` 0.2.3 is a deprecation shim that
+> re-exports `quillsift` and emits an import warning.
 
 ## Why QuillSift
 
