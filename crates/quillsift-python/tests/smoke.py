@@ -71,6 +71,14 @@ def main():
         markdown = quillsift.fetch(base, allow_private=True)
         assert isinstance(markdown, str) and "Hello" in markdown, markdown
 
+        local_markdown = quillsift.parse_html(HTML.decode("utf-8"), base_url="https://example.com/")
+        assert "# Hello" in local_markdown, local_markdown
+        local_json = quillsift.parse_html(
+            HTML.decode("utf-8"), base_url="https://example.com/", format="json"
+        )
+        assert local_json["metadata"]["title"] == "Demo", local_json
+        assert local_json["links"] and local_json["links"][0] == "https://example.com/next", local_json["links"]
+
         text = quillsift.fetch(base, format="text", allow_private=True)
         assert "Body text." in text, text
 

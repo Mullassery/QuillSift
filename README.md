@@ -93,6 +93,15 @@ print(page["links"][:3])
 `format` accepts `"markdown"`, `"text"` or `"json"`. The JSON form returns
 `url`, `text`, `markdown`, `links`, `images` and `metadata`.
 
+Already have the HTML (a local file, a test fixture, or content fetched by
+another tool)? Parse it with no network access:
+
+```python
+html = open("page.html", encoding="utf-8").read()
+markdown = quillsift.parse_html(html, base_url="https://example.com/page")
+page = quillsift.parse_html(html, base_url="https://example.com/page", format="json")
+```
+
 ### Bounded crawl (legacy)
 
 QuillSift's built-in crawler remains for API and CLI compatibility with bug

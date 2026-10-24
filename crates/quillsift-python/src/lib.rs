@@ -85,6 +85,45 @@ async fn run_fetch(url: Url, allow_private: bool) -> Result<Extracted, ScrapeErr
 /// # Errors
 /// Raises `ValueError` for invalid URLs/options, `PermissionError` for blocked
 /// destinations and `RuntimeError` for transport, status or parse failures.
+/// Parses caller-supplied HTML with no network access.
+///
+/// Useful for local files, tests, and content already fetched elsewhere.
+/// `format` is `"markdown"`, `"text"` or `"json"`; `base_url` is used only to
+/// resolve relative links and fill the `url` field.
+#[pyfunction]
+#[pyo3(signature = (html, *, base_url = "https://quillsift.local/", format = "markdown"))]
+fn parse_html(py: Python<'_>, html: &str, base_url: &str, format: &str) -> PyResult<Py<PyAny>> {
+    let base = Url::parse(base_url).map_err(|err| to_pyerr(err.into()))?;
+    let extracted = StructuralExtractor::new()
+        .extract(html, &base)
+        .map_err(to_pyerr)?;
+    match format {
+        "markdown" => Ok(extracted
+            .markdown
+            .trim_end()
+            .to_owned()
+            .into_pyobject(py)?
+            .into_any()
+            .unbind()),
+        "text" => Ok(extracted
+            .text
+            .trim_end()
+            .to_owned()
+            .into_pyobject(py)?
+            .into_any()
+            .unbind()),
+        "json" => {
+            let value = serde_json::to_value(&extracted).map_err(|err| {
+                PyRuntimeError::new_err(format!("failed to encode result: {err}"))
+            })?;
+            json_to_py(py, &value)
+        }
+        other => Err(PyValueError::new_err(format!(
+            "unknown format `{other}`; expected `markdown`, `text` or `json`"
+        ))),
+    }
+}
+
 #[pyfunction]
 #[pyo3(signature = (url, *, format = "markdown", allow_private = false))]
 fn fetch(py: Python<'_>, url: &str, format: &str, allow_private: bool) -> PyResult<Py<PyAny>> {
@@ -307,6 +346,7 @@ fn crawl(
 fn _quillsift(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add_function(wrap_pyfunction!(fetch, m)?)?;
+    m.add_function(wrap_pyfunction!(parse_html, m)?)?;
     m.add_function(wrap_pyfunction!(extract, m)?)?;
     m.add_function(wrap_pyfunction!(crawl, m)?)?;
     Ok(())

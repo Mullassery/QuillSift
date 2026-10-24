@@ -14,6 +14,9 @@ pip install quillsift
 ```python
 import quillsift
 
+# Local HTML, no network:
+markdown = quillsift.parse_html("<h1>Hello</h1>", base_url="https://example.com/")
+
 markdown = quillsift.fetch("https://example.com")
 data = quillsift.fetch("https://example.com", format="json")
 
