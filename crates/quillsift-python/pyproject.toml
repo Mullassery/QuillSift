@@ -23,6 +23,12 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+[project.optional-dependencies]
+mcp = ["fastmcp>=2.0"]
+
+[project.scripts]
+quillsift-mcp = "quillsift.mcp_server:main"
+
 [project.urls]
 Homepage = "https://github.com/Mullassery/QuillSift"
 Repository = "https://github.com/Mullassery/QuillSift"

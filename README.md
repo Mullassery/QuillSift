@@ -28,7 +28,8 @@ No browser. No paid scraping API. No vendor lock-in.
 > extraction, the `quillsift` CLI and PyPI Python bindings are implemented and
 > tested. The built-in crawler is a legacy compatibility fallback; new crawling
 > and JavaScript-rendering work belongs in [MudFish](https://github.com/Mullassery/MudFish).
-> Search providers, a REST API and an MCP server are on the roadmap. Nothing
+> Search providers and a REST API are on the roadmap. A local
+> FastMCP-based MCP server now ships via the optional `mcp` extra. Nothing
 > here is a claim of production readiness.
 
 > **Renamed:** QuillSift was previously published as ScrapeOwl. The former name
@@ -101,6 +102,19 @@ html = open("page.html", encoding="utf-8").read()
 markdown = quillsift.parse_html(html, base_url="https://example.com/page")
 page = quillsift.parse_html(html, base_url="https://example.com/page", format="json")
 ```
+
+### MCP server
+
+Expose the same tools to MCP clients (Claude Code, Cursor, etc.):
+
+```bash
+pip install "quillsift[mcp]"
+quillsift-mcp
+```
+
+Tools: `quillsift_fetch`, `quillsift_parse_html`, `quillsift_extract`, and
+`quillsift_crawl`. They call the same guarded bindings as the library, so SSRF
+policy and schema validation are unchanged.
 
 ### Bounded crawl (legacy)
 
@@ -286,7 +300,8 @@ The threat model and planned mitigations are documented in
 | Bounded, same-origin, robots-aware crawling | Legacy fallback; MudFish preferred |
 | Search-provider fan-out | Roadmap |
 | JavaScript-rendered pages | Use MudFish `render_js`; not built into QuillSift |
-| REST API or MCP server | Roadmap |
+| REST API | Roadmap |
+| MCP server | `pip install "quillsift[mcp]"`; run `quillsift-mcp` |
 
 ## Status and roadmap
 
@@ -297,7 +312,8 @@ The threat model and planned mitigations are documented in
 - [x] **M4a** — bounded crawl (legacy fallback; compatibility fixes only)
 - [ ] **M4b** — pluggable search providers
 - [ ] **M5** — superseded by MudFish; no browser engine planned in QuillSift
-- [ ] **M6** — REST API and MCP server
+- [x] **M6a** — MCP server (`quillsift-mcp`, `quillsift[mcp]`)
+- [ ] **M6b** — REST API
 - [ ] **M7** — hardening and benchmarks
 - [ ] **M8** — documentation and release
 

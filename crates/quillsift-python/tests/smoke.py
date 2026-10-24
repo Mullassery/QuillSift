@@ -79,6 +79,11 @@ def main():
         assert local_json["metadata"]["title"] == "Demo", local_json
         assert local_json["links"] and local_json["links"][0] == "https://example.com/next", local_json["links"]
 
+        from quillsift.mcp_server import parse_html_tool
+
+        mcp_markdown = parse_html_tool(HTML.decode("utf-8"), base_url="https://example.com/")
+        assert "# Hello" in mcp_markdown, mcp_markdown
+
         text = quillsift.fetch(base, format="text", allow_private=True)
         assert "Body text." in text, text
 
