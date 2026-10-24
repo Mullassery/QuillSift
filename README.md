@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/quillsift-banner.svg" alt="QuillSift — self-hosted web scraping for AI, written in Rust" width="100%" />
+</p>
+
 <div align="center">
 
 # QuillSift
