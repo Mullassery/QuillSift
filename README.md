@@ -12,7 +12,7 @@ Deterministic HTML → Markdown, text, links and JSON by default.
 Optional schema-validated LLM extraction with OpenAI-compatible APIs or Ollama.
 No browser. No paid scraping API. No vendor lock-in.
 
-[![CI](https://github.com/Mullassery/QuillSift/actions/workflows/ci.yml/badge.svg)](https://github.com/Mullassery/QuillSift/actions/workflows/ci.yml)
+[![CI](../QuillSift/actions/workflows/ci.yml/badge.svg)](../QuillSift/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/quillsift.svg)](https://pypi.org/project/quillsift/)
 [![Python](https://img.shields.io/pypi/pyversions/quillsift.svg)](https://pypi.org/project/quillsift/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
@@ -27,7 +27,7 @@ No browser. No paid scraping API. No vendor lock-in.
 > **Status: alpha.** Deterministic fetch/parse, the bounded graph executor, LLM
 > extraction, the `quillsift` CLI and PyPI Python bindings are implemented and
 > tested. The built-in crawler is a legacy compatibility fallback; new crawling
-> and JavaScript-rendering work belongs in [MudFish](https://github.com/Mullassery/MudFish).
+> and JavaScript-rendering work belongs in [MudFish](../MudFish).
 > Search providers and a REST API are on the roadmap. A local
 > FastMCP-based MCP server now ships via the optional `mcp` extra. Nothing
 > here is a claim of production readiness.
@@ -70,7 +70,7 @@ pip install quillsift
 CLI from source (Rust stable):
 
 ```bash
-git clone https://github.com/Mullassery/QuillSift.git
+git clone ../QuillSift
 cd QuillSift
 cargo install --path crates/quillsift-cli
 ```

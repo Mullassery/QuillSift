@@ -21,6 +21,6 @@ result = scrapeowl.fetch("https://example.com")
 ```
 
 The old name conflicted with an existing commercial scraping API. New work
-belongs at https://github.com/Mullassery/QuillSift.
+belongs at ../QuillSift.
 
 Apache-2.0.

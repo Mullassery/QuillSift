@@ -1,6 +1,6 @@
 # quillsift
 
-Python bindings for [QuillSift](https://github.com/Mullassery/QuillSift): a
+Python bindings for [QuillSift](../QuillSift): a
 Rust-native, self-hosted scraping engine with a deterministic (LLM-free) path,
 a legacy bounded crawler and schema-validated LLM extraction.
 
